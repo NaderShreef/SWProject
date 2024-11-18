@@ -1,8 +1,24 @@
-function greet(name) {
-    console.log(`Hello, ${name}! Welcome to JavaScript.`);
-} 
+const express = require("express");
+const mongoose = require("mongoose");
 
-function bye(name) {
-    console.log(`Hello, ${name}! Welcome to JavaScript.`);
-} 
-dassdas
+const app = express();
+const PORT = 3000;
+
+// MongoDB connection
+const mongoURI =
+  "mongodb+srv://NaderShreef:nader13A@cluster0.gtlojs7.mongodb.net/";
+
+mongoose
+  .connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => console.log("Connected to MongoDB"))
+  .catch((err) => console.error("MongoDB connection error:", err));
+
+// Basic route
+app.get("/", (req, res) => {
+  res.send("App connected to MongoDB!");
+});
+
+// Start the server
+app.listen(PORT, () =>
+  console.log(`Server running on http://localhost:${PORT}`)
+);
