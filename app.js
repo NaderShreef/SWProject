@@ -9,7 +9,7 @@ const mongoURI =
   "mongodb+srv://NaderShreef:nader13A@cluster0.gtlojs7.mongodb.net/";
 
 mongoose
-  .connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .connect(mongoURI)
   .then(() => console.log("Connected to MongoDB"))
   .catch((err) => console.error("MongoDB connection error:", err));
 
