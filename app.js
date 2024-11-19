@@ -10,7 +10,7 @@ const mongoURI =
 
 mongoose
   .connect(mongoURI)
-  .then(() => console.log("Connected to MongoDB"))
+  .then(() => console.log("Connected to Mongodb"))
   .catch((err) => console.error("MongoDB connection error:", err));
 
 // Basic route
