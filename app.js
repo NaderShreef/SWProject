@@ -15,7 +15,7 @@ mongoose
 
 // Basic route
 app.get("/", (req, res) => {
-  res.send("App connected to mongo!");
+  res.send("App connected to mongodb!");
 });
 
 // Start the server
