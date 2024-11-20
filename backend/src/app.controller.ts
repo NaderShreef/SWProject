@@ -6,3 +6,8 @@ export class AppService {
     return 'Hello, MongoDB is connected!';
   }
 }
+export class AppController {
+  getHello(): any {
+    throw new Error('Method not implemented.');
+  }
+}
