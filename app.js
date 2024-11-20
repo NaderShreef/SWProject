@@ -10,12 +10,12 @@ const mongoURI =
 
 mongoose
   .connect(mongoURI)
-  .then(() => console.log("Connected to MongoDB"))
+  .then(() => console.log("Connected to MongoDB1"))
   .catch((err) => console.error("MongoDB connection error:", err));
 
 // Basic route
 app.get("/", (req, res) => {
-  res.send("App connected to MongoDB!");
+  res.send("App connected to mongodb!");
 });
 
 // Start the server
