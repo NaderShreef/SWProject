@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
+import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
 @Module({
@@ -12,6 +13,7 @@ import { AppService } from './app.service';
       dbName: process.env.DATABASE_NAME,
     }),
   ],
+  controllers: [AppController], // Add AppController here
   providers: [AppService],
 })
 export class AppModule {}
