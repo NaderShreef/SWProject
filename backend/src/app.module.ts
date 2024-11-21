@@ -13,7 +13,7 @@ import { AppService } from './app.service';
       dbName: process.env.DATABASE_NAME,
     }),
   ],
-  controllers: [AppController], // Add AppController here
+  controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {}
