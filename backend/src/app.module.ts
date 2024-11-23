@@ -4,7 +4,6 @@ import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ResponsesModule } from './responses/responses.module';
-import { ResponsesModule } from './responses/responses.module';
 
 @Module({
   imports: [
