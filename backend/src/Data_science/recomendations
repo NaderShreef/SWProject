@@ -1,8 +1,0 @@
-const recommendationSchema = new mongoose.Schema({
-  recommendationId: { type: String, required: true, unique: true }, // Unique identifier
-  userId: { type: String, required: true }, // Associated user ID
-  recommendedItems: [{ type: String }], // Array of recommended course/module IDs
-  generatedAt: { type: Date, default: Date.now }, // Timestamp of recommendation generation
-});
-
-module.exports = mongoose.model('Recommendation', recommendationSchema);
