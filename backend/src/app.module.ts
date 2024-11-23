@@ -6,7 +6,6 @@ import { AppService } from './app.service';
 import { ProgressModule } from './progress/progress.Module';
 import { ProgressSchema } from './progress/progress.schema';
 =======
-import { ResponsesModule } from './responses/responses.module';
 
 @Module({
   imports: [
