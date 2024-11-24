@@ -15,8 +15,13 @@ describe('AppController', () => {
   });
 
   describe('root', () => {
+<<<<<<< HEAD
+    it('should return "Hello World!"', () => {
+      expect(appController.getHello()).toBe('Hello World!');
+=======
     it('should return "Hello, MongoDB is connected!"', () => {
       expect(appController.getHello()).toBe('Hello, MongoDB is connected!');
+>>>>>>> 36a753f936cff64d35593d8ff60a3ea5c8c2001d
     });
   });
 });
