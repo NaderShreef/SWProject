@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { response } from 'express';
-import mongoose, {HydratedDocument} from 'mongoose';
+import mongoose from 'mongoose';
+import { HydratedDocument } from 'mongoose';
 
 @Schema()
 export class responses {
