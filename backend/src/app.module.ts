@@ -3,12 +3,6 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { NotesModule } from './notes/notes.Schema';
-=======
-import { ProgressModule } from './progress/progress.Module';
-import { ProgressSchema } from './progress/progress.schema';
-import { ProgressService } from './progress/progress.service';
-import { ProgressController } from './progress/progress.controller';
 
 @Module({
   imports: [
