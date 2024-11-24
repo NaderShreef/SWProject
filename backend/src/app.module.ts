@@ -11,6 +11,7 @@ import { NotesModule } from './notes/notes.Schema';
 import { ModulesModule } from './modules/modules.module';
 import { InteractionsModule } from './Data_science/interactions.module';
 import { RecommendationsModule } from './Data_science/recommendations.module';
+import { CoursesModule } from './courses/courses.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { RecommendationsModule } from './Data_science/recommendations.module';
     ModulesModule,
     InteractionsModule,
     RecommendationsModule,
+    CoursesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
