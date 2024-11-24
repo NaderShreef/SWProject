@@ -1,15 +1,19 @@
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AppService {
-  constructor(private readonly configService: ConfigService) {}
+  private mongoUri = 'mongodb://localhost:27017';
+  private databaseName = 'myDatabase';
+
+  getHello(): string {
+    return 'Hello, MongoDB is connected!';
+  }
 
   getMongoUri(): string {
-    return this.configService.get<string>('MONGO_URI');
+    return this.mongoUri;
   }
 
   getDatabaseName(): string {
-    return this.configService.get<string>('DATABASE_NAME');
+    return this.databaseName;
   }
 }

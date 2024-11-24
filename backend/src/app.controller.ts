@@ -1,8 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
+import { AppService } from './app.service';
+@Controller()
+export class AppController {
+  constructor(private readonly appService: AppService) {}
 
-@Injectable()
-export class AppService {
-  getHello(): string {   
-    return 'Hello, MongoDB is connected!';
+  @Get()
+  getHello(): string {
+    return this.appService.getHello();
   }
 }
