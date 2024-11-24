@@ -10,7 +10,7 @@ const mongoURI =
 
 mongoose
   .connect(mongoURI)
-  .then(() => console.log("Connected to Mongodb"))
+  .then(() => console.log("Connected to MongoDB1"))
   .catch((err) => console.error("MongoDB connection error:", err));
 
 // Basic route
@@ -20,5 +20,5 @@ app.get("/", (req, res) => {
 
 // Start the server
 app.listen(PORT, () =>
-  console.log(`Server running on http://localhost:${PORT}`)
+  console.log(⁠ Server running on http://localhost:${PORT} ⁠)
 );
