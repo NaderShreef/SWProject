@@ -16,7 +16,7 @@ const quiz_module_1 = require("./quizzes/quiz.module");
 const responses_module_1 = require("./responses/responses.module");
 const user_module_1 = require("./users/user.module");
 const progress_module_1 = require("./progress/progress.module");
-const notes_Schema_1 = require("./notes/notes.Schema");
+const notes_module_1 = require("./notes/notes.module");
 const modules_module_1 = require("./modules/modules.module");
 const interactions_module_1 = require("./Data_science/interactions.module");
 const recommendations_module_1 = require("./Data_science/recommendations.module");
@@ -37,7 +37,7 @@ exports.AppModule = AppModule = __decorate([
             responses_module_1.ResponsesModule,
             user_module_1.UsersModule,
             progress_module_1.ProgressModule,
-            notes_Schema_1.NotesModule,
+            notes_module_1.NotesModule,
             modules_module_1.ModulesModule,
             interactions_module_1.InteractionsModule,
             recommendations_module_1.RecommendationsModule,
