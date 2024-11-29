@@ -1,31 +1,35 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { Course } from './schemas/courses.schema';
+import { UpdateCourseDTO } from './dto/updateCousre.dto';
 
 @Injectable()
 export class CoursesService {
-  constructor(@InjectModel(Course.name) private courseModel: Model<Course>) {}
+  constructor(@InjectModel(Course.name) private courseModel: mongoose.Model<Course>) {}
 
-  async createCourse(createCourseDto: any): Promise<Course> {
-    const course = new this.courseModel(createCourseDto);
-    return course.save();
+ 
+    // create a course
+    async create(courseData: Course): Promise<Course> {
+      const newCourse = new this.courseModel(courseData);  // Create a new student document
+      return await newCourse.save();  // Save it to the database
   }
+   // Get all courses
+   async findAll(): Promise<Course[]> {
+    let courses= await this.courseModel.find();  // Fetch all students from the database
+    return courses
+}
 
-  async getAllCourses(category?: string): Promise<Course[]> {
-    if (category) {
-      return this.courseModel.find({ category }).exec();
-    }
-    return this.courseModel.find().exec();
-  }
+// Get a course by ID
+async findById(id: string): Promise<Course> {
+    return await this.courseModel.findById(id);  // Fetch a student by ID
+}
 
-  async getCourseById(id: string): Promise<Course> {
-    return this.courseModel.findById(id).exec();
-  }
+ // Update a course's details by ID
+ async update(id: string, updateData: UpdateCourseDTO): Promise<Course> {
+  return await this.courseModel.findByIdAndUpdate(id, updateData, { new: true });  // Find and update the student
+}
 
-  async updateCourse(id: string, updateCourseDto: any): Promise<Course> {
-    return this.courseModel.findByIdAndUpdate(id, updateCourseDto, { new: true }).exec();
-  }
   async searchCourses(topic?: string, instructor?: string): Promise<Course[]> {
     const filter: any = {};
     if (topic) {
