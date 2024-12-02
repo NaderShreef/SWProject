@@ -3,7 +3,6 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
 import { AppService } from './app.service';
 import { ResponsesModule } from './responses/responses.module';
-import { ResponsesModule } from './responses/responses.module';
 
 @Module({
   imports: [
