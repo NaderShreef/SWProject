@@ -18,7 +18,6 @@ export class AuthService {
   async register(
     userDto: Partial<User>,
   ): Promise<{ user: Partial<User>; access_token: string }> {
-    // Check if user already exists
     const existingUser = await this.usersService.findByEmail(userDto.email);
     if (existingUser) {
       throw new ConflictException('User already exists');
@@ -32,7 +31,7 @@ export class AuthService {
     const user = await this.usersService.createUser({
       ...userDto,
       passwordHash,
-      userId: userDto.email, // Using email as userId for simplicity
+      userId: userDto.email,
     });
 
     // Generate JWT token
