@@ -24,7 +24,10 @@ export class UsersService {
   }
 
   // Update user by ID
-  async updateUser(userId: string, updates: Partial<User>): Promise<User | null> {
+  async updateUser(
+    userId: string,
+    updates: Partial<User>,
+  ): Promise<User | null> {
     const updatedUser = await this.userModel
       .findOneAndUpdate({ userId }, updates, { new: true })
       .exec();
@@ -33,7 +36,12 @@ export class UsersService {
 
   // Delete user by ID
   async deleteUser(userId: string): Promise<User | null> {
-    const deletedUser = await this.userModel.findOneAndDelete({ userId }).exec();
+    const deletedUser = await this.userModel
+      .findOneAndDelete({ userId })
+      .exec();
     return deletedUser as unknown as User | null;
+  }
+  async findByEmail(email: string): Promise<User | null> {
+    return this.userModel.findOne({ email }).exec();
   }
 }

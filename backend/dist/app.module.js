@@ -21,6 +21,7 @@ const modules_module_1 = require("./modules/modules.module");
 const interactions_module_1 = require("./Data_science/interactions.module");
 const recommendations_module_1 = require("./Data_science/recommendations.module");
 const courses_module_1 = require("./courses/courses.module");
+const auth_module_1 = require("./auth/auth.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -42,6 +43,7 @@ exports.AppModule = AppModule = __decorate([
             interactions_module_1.InteractionsModule,
             recommendations_module_1.RecommendationsModule,
             courses_module_1.CoursesModule,
+            auth_module_1.AuthModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],
