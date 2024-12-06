@@ -9,7 +9,3 @@ export class AppController {
     return this.appService.getHello();
   }
 }
-<<<<<<< HEAD
-
-=======
->>>>>>> 46982dbb180db431799082216593b943d95bda3e
