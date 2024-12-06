@@ -24,6 +24,7 @@ const courses_module_1 = require("./courses/courses.module");
 const auth_module_1 = require("./auth/auth.module");
 const backup_module_1 = require("./backup/backup.module");
 const schedule_1 = require("@nestjs/schedule");
+const announcement_module_1 = require("./announcement/announcement.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -48,6 +49,7 @@ exports.AppModule = AppModule = __decorate([
             courses_module_1.CoursesModule,
             auth_module_1.AuthModule,
             backup_module_1.BackupModule,
+            announcement_module_1.AnnouncementModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

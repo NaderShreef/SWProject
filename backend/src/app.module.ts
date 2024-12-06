@@ -15,6 +15,7 @@ import { CoursesModule } from './courses/courses.module';
 import { AuthModule } from './auth/auth.module';
 import { BackupModule } from './backup/backup.module';
 import { ScheduleModule } from '@nestjs/schedule'; // Import ScheduleModule
+import { AnnouncementModule } from './announcement/announcement.module'; // Import AnnouncementModule
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { ScheduleModule } from '@nestjs/schedule'; // Import ScheduleModule
     CoursesModule,
     AuthModule,
     BackupModule, // Register BackupModule
+    AnnouncementModule, // Register AnnouncementModule
   ],
   controllers: [AppController],
   providers: [AppService],
