@@ -5,7 +5,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ProgressModule } from './progress/progress.Module';
 import { ProgressSchema } from './progress/progress.schema';
-=======
+
 
 @Module({
   imports: [
@@ -16,7 +16,7 @@ import { ProgressSchema } from './progress/progress.schema';
       dbName: process.env.DATABASE_NAME,
     }),
     ProgressModule,
-=======
+
   ],
   controllers: [AppController],
   providers: [AppService],
