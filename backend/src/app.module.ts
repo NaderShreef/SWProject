@@ -13,6 +13,9 @@ import { InteractionsModule } from './Data_science/interactions.module';
 import { RecommendationsModule } from './Data_science/recommendations.module';
 import { CoursesModule } from './courses/courses.module';
 import { AuthModule } from './auth/auth.module';
+import { BackupModule } from './backup/backup.module';
+import { ScheduleModule } from '@nestjs/schedule'; // Import ScheduleModule
+import { AnnouncementModule } from './announcement/announcement.module'; // Import AnnouncementModule
 
 @Module({
   imports: [
@@ -22,6 +25,7 @@ import { AuthModule } from './auth/auth.module';
     MongooseModule.forRoot(process.env.MONGO_URI, {
       dbName: process.env.DATABASE_NAME,
     }),
+    ScheduleModule.forRoot(), // Enable scheduling
     QuizModule,
     ResponsesModule,
     UsersModule,
@@ -32,8 +36,11 @@ import { AuthModule } from './auth/auth.module';
     RecommendationsModule,
     CoursesModule,
     AuthModule,
+    BackupModule, // Register BackupModule
+    AnnouncementModule, // Register AnnouncementModule
   ],
   controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {}
+

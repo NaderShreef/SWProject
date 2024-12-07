@@ -22,6 +22,9 @@ const interactions_module_1 = require("./Data_science/interactions.module");
 const recommendations_module_1 = require("./Data_science/recommendations.module");
 const courses_module_1 = require("./courses/courses.module");
 const auth_module_1 = require("./auth/auth.module");
+const backup_module_1 = require("./backup/backup.module");
+const schedule_1 = require("@nestjs/schedule");
+const announcement_module_1 = require("./announcement/announcement.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -34,6 +37,7 @@ exports.AppModule = AppModule = __decorate([
             mongoose_1.MongooseModule.forRoot(process.env.MONGO_URI, {
                 dbName: process.env.DATABASE_NAME,
             }),
+            schedule_1.ScheduleModule.forRoot(),
             quiz_module_1.QuizModule,
             responses_module_1.ResponsesModule,
             user_module_1.UsersModule,
@@ -44,6 +48,8 @@ exports.AppModule = AppModule = __decorate([
             recommendations_module_1.RecommendationsModule,
             courses_module_1.CoursesModule,
             auth_module_1.AuthModule,
+            backup_module_1.BackupModule,
+            announcement_module_1.AnnouncementModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],
