@@ -1,17 +1,19 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Schema as MongooseSchema } from 'mongoose'; // Import Schema for references
+import { Schema as MongooseSchema } from 'mongoose';
 import { Document, Types } from 'mongoose';
 
-@Schema({ timestamps: true }) // Automatically manage createdAt and updatedAt
+@Schema({ timestamps: true })
 export class Quiz extends Document {
   @Prop({ type: String, required: true, unique: true })
   quizId: string;
 
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Module', required: true })
+  moduleId: Types.ObjectId;
 
-  @Prop({ type: String, required: true })
-  Module_id: string; // Reference to the Course schema 
-
-  @Prop({ type: [{ question: String, options: [String], answer: String }], required: true })
+  @Prop({
+    type: [{ question: String, options: [String], answer: String }],
+    required: true,
+  })
   questions: Array<{ question: string; options: string[]; answer: string }>;
 
   @Prop({ type: Date, default: Date.now })
@@ -19,7 +21,3 @@ export class Quiz extends Document {
 }
 
 export const QuizSchema = SchemaFactory.createForClass(Quiz);
-
-
-
-
