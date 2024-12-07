@@ -61,8 +61,8 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    // Check password
-    const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
+    // Validate password using the new method
+    const isPasswordValid = await this.validatePassword(password, user.passwordHash);
     if (!isPasswordValid) {
       throw new UnauthorizedException('Invalid credentials');
     }
@@ -83,4 +83,11 @@ export class AuthService {
       access_token,
     };
   }
+
+  // validatePassword method is now public
+  public async validatePassword(password: string, storedPasswordHash: string): Promise<boolean> {
+    // Compare provided password with the stored password hash
+    return await bcrypt.compare(password, storedPasswordHash);
+  }
 }
+

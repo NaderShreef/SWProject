@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Query } from 'mongoose';
+import { Model } from 'mongoose';
 import { User } from './schemas/user.schema';
 
 @Injectable()
@@ -41,7 +41,45 @@ export class UsersService {
       .exec();
     return deletedUser as unknown as User | null;
   }
+
+  // Get user by email (used for login validation)
   async findByEmail(email: string): Promise<User | null> {
     return this.userModel.findOne({ email }).exec();
+  }
+
+  // Track failed login attempts
+  async incrementFailedLoginAttempts(userId: string): Promise<void> {
+    await this.userModel
+      .findOneAndUpdate(
+        { userId },
+        {
+          $inc: { failedLoginAttempts: 1 }, // Increment failed login attempts by 1
+          $set: { lastFailedLoginAttempt: new Date() }, // Set timestamp for the failed login attempt
+        },
+        { new: true }
+      )
+      .exec();
+  }
+
+  // Reset failed login attempts
+  async resetFailedLoginAttempts(userId: string): Promise<void> {
+    await this.userModel
+      .findOneAndUpdate(
+        { userId },
+        {
+          $set: { failedLoginAttempts: 0 }, // Reset failed login attempts to 0
+        },
+        { new: true }
+      )
+      .exec();
+  }
+
+  // Get users with failed login attempts
+  async getFailedLoginAttempts(): Promise<any> {
+    // This method returns a list of users with failed login attempts.
+    return this.userModel.aggregate([
+      { $match: { failedLoginAttempts: { $gte: 1 } } },
+      { $project: { userId: 1, email: 1, failedLoginAttempts: 1 } },
+    ]);
   }
 }
