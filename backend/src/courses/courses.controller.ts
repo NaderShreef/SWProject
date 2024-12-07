@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Query,Put, Patch, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Query,Put, Patch, Delete , UseGuards } from '@nestjs/common';
 import { CoursesService } from './courses.service';
 import { Course } from './schemas/courses.schema';
 import { CreateCourseDTo } from './dto/createCourse.dto';
