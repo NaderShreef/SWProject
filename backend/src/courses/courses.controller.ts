@@ -3,9 +3,13 @@ import { CoursesService } from './courses.service';
 import { Course } from './schemas/courses.schema';
 import { CreateCourseDTo } from './dto/createCourse.dto';
 import { UpdateCourseDTO } from './dto/updateCousre.dto';
+import { Roles } from '../auth/roles.decorator';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { RolesGuard } from 'src/Auth/roles.gaurd';
 
 
 @Controller('courses')
+@UseGuards(RolesGuard,JwtAuthGuard)
 export class CoursesController {
   constructor(private coursesService: CoursesService) {
 
@@ -21,7 +25,7 @@ export class CoursesController {
         const course = await this.coursesService.findById(id);
         return course;
     }
-    // Create a new course
+   @Roles('instructor')
     @Post()
     async createCourse(@Body()courseData: CreateCourseDTo) {// Get the new student data from the request body
         const newCourse = await this.coursesService.create(courseData);
@@ -42,7 +46,7 @@ export class CoursesController {
       }
 
 
-    
+  @Roles('instructor')
   @Put(':id')
   async updateCourse(@Param('id') id:string,@Body()courseData: UpdateCourseDTO) {
       const updatedCourse = await this.coursesService.update(id, courseData);
@@ -64,7 +68,7 @@ export class CoursesController {
     return { versions };
   }
 
-  // Delete a course by ID
+  @Roles('admin')
   @Delete(':id')
   async deleteCourse(@Param('id')id:string) {
       const deletedCourse = await this.coursesService.delete(id);
