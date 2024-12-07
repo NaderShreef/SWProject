@@ -11,6 +11,7 @@ const common_1 = require("@nestjs/common");
 const mongoose_1 = require("@nestjs/mongoose");
 const config_1 = require("@nestjs/config");
 const app_service_1 = require("./app.service");
+const responses_module_1 = require("./responses/responses.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -23,6 +24,7 @@ exports.AppModule = AppModule = __decorate([
             mongoose_1.MongooseModule.forRoot(process.env.MONGO_URI, {
                 dbName: process.env.DATABASE_NAME,
             }),
+            responses_module_1.ResponsesModule,
         ],
         providers: [app_service_1.AppService],
     })
