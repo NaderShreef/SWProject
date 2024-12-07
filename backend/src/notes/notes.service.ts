@@ -46,6 +46,10 @@ async delete(noteId: string): Promise<Note> {
 async getAllNotes(): Promise<Note[]> {
     return this.noteModel.find().exec();
   }
+   // Get Note by ID
+   async findById(noteId: string): Promise<Note | null> {
+    return await this.noteModel.findOne({ noteId }).exec();
+  }
   
   // Function to delete a note by ID
   async deleteNoteById(noteId: string): Promise<Note> {

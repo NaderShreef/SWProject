@@ -1,7 +1,8 @@
-import { Controller, Post, Put, Delete, Body, Param, Get } from '@nestjs/common';
+import { Controller, Post, Put, Delete, Body, Param, Get, NotFoundException } from '@nestjs/common';
 import { NotesService } from './notes.service';
 import { CreateNoteDTO } from './create-notes.DTo';
 import { UpdateNoteDTO } from './update-note.DTo';
+import { Note } from './notes.Schema';
 
 @Controller('notes')
 export class NotesController {
@@ -41,6 +42,15 @@ async getQuickNotes(@Param('userId') userId: string) {
 async getAllNotes() {
   return this.notesService.getAllNotes();
 }
+ // Get Note by ID
+ @Get(':id')
+ async getNoteById(@Param('id') noteId: string): Promise<Note> {
+   const note = await this.notesService.findById(noteId);
+   if (!note) {
+     throw new NotFoundException(`Note with ID ${noteId} not found`);
+   }
+   return note;
+ }
   // Delete a note by ID
   @Delete(':noteId')
   async deleteNoteById(@Param('noteId') noteId: string) {
