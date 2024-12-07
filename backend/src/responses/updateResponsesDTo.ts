@@ -7,11 +7,11 @@ export class UpdateResponseDto {
 
   @IsString()
   @IsOptional()
-  user_id?: string;
+  userId?: string;
 
   @IsString()
   @IsOptional()
-  quiz_id?: string;
+  quizId?: string;
 
   @IsArray()
   @IsOptional()

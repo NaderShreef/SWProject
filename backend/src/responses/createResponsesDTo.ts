@@ -7,11 +7,11 @@ export class CreateResponseDto {
 
   @IsString()
   @IsNotEmpty()
-  user_id: string;
+  userId: string;
 
   @IsString()
   @IsNotEmpty()
-  quiz_id: string;
+  quizId: string;
 
   @IsArray()
   @IsNotEmpty()
