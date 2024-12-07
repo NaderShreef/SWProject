@@ -1,6 +1,10 @@
-import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  ForbiddenException,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-//import { JwtAuthGuard } from './jwt-auth.guard';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -21,7 +25,16 @@ export class RolesGuard implements CanActivate {
     // Get the user from the request object (set by JwtAuthGuard)
     const { user } = context.switchToHttp().getRequest();
 
+    // If no user is found, deny access
+    if (!user) {
+      throw new ForbiddenException('User not authenticated');
+    }
+
     // Check if the user has one of the required roles
-    return requiredRoles.includes(user.role);
+    if (!requiredRoles.includes(user.role)) {
+      throw new ForbiddenException('You do not have the necessary permissions');
+    }
+
+    return true;
   }
 }
