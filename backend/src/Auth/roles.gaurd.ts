@@ -1,6 +1,5 @@
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { JwtAuthGuard } from './jwt-auth.guard'; // Only import JwtAuthGuard, no need to export it
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -8,7 +7,10 @@ export class RolesGuard implements CanActivate {
 
   canActivate(context: ExecutionContext): boolean {
     // Get roles metadata set via @Roles() decorator
-    const requiredRoles = this.reflector.get<string[]>('roles', context.getHandler());
+    const requiredRoles = this.reflector.get<string[]>(
+      'roles',
+      context.getHandler(),
+    );
 
     // If no roles are set, allow access
     if (!requiredRoles) {
@@ -22,6 +24,3 @@ export class RolesGuard implements CanActivate {
     return requiredRoles.includes(user.role);
   }
 }
-
-
-
