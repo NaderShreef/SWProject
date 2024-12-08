@@ -23,5 +23,3 @@ export class Progress extends Document {
 
 // Create the Mongoose schema
 export const ProgressSchema = SchemaFactory.createForClass(Progress);
-
-
