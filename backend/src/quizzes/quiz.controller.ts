@@ -29,6 +29,14 @@ export class QuizController {
     return this.quizService.findQuizById(quizId);
   }
 
+  @Post(':quizId/evaluate')
+  async evaluateQuiz(
+    @Param('quizId') quizId: string,
+    @Body() answers: { answers: string[] },
+  ): Promise<any> {
+    return this.quizService.evaluateQuiz(quizId, answers);
+  }
+
   @Patch(':quizId')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('instructor') // Restrict updates to instructors
@@ -38,4 +46,5 @@ export class QuizController {
   ) {
     return this.quizService.updateQuiz(quizId, updateQuizDto);
   }
+ 
 }
