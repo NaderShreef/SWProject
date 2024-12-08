@@ -14,6 +14,9 @@ import { RecommendationsModule } from './Data_science/recommendations.module';
 import { CoursesModule } from './courses/courses.module';
 import { AuthModule } from './auth/auth.module';
 import { QuestionBankModule } from './question-bank/question-bank.module';
+import { MessageModule } from './message/message.module';
+import { ChatModule } from './chat/chat.module';
+import { RoomModule } from './room/room.module';
 
 @Module({
   imports: [
@@ -34,6 +37,9 @@ import { QuestionBankModule } from './question-bank/question-bank.module';
     CoursesModule,
     AuthModule,
     QuestionBankModule,
+    MessageModule,
+    ChatModule,
+    RoomModule,
   ],
   controllers: [AppController],
   providers: [AppService],

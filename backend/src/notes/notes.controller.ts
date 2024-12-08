@@ -1,14 +1,19 @@
-import { Controller, Post, Put, Delete, Body, Param, Get, NotFoundException } from '@nestjs/common';
+import { Controller, Post, Put, Delete, Body, Param, Get, NotFoundException, UseGuards } from '@nestjs/common';
 import { NotesService } from './notes.service';
 import { CreateNoteDTO } from './create-notes.DTo';
 import { UpdateNoteDTO } from './update-note.DTo';
 import { Note } from './notes.Schema';
-
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { RolesGuard } from '../Auth/roles.gaurd'; 
+import { Roles } from 'src/auth/roles.decorator';
 @Controller('notes')
 export class NotesController {
   constructor(private readonly notesService: NotesService) {}
 
   // Create a new note
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('student')
   @Post()
   async createNote(@Body() createNoteDTO: CreateNoteDTO) {
     return this.notesService.create(createNoteDTO);
@@ -22,9 +27,9 @@ async createQuickNote(@Body() createNoteDTO: CreateNoteDTO) {
 async getQuickNotes(@Param('userId') userId: string) {
   return this.notesService.getNotesByType(userId, true); // Fetch quick notes
 }
-
-
-  // Update an existing note
+// Update an existing note
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('student')
   @Put(':noteId')
   async updateNote(
     @Param('noteId') noteId: string,
@@ -34,6 +39,8 @@ async getQuickNotes(@Param('userId') userId: string) {
   }
 
   // Delete a note
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('student')
   @Delete(':noteId')
   async deleteNote(@Param('noteId') noteId: string) {
     return this.notesService.delete(noteId);
@@ -47,7 +54,7 @@ async getAllNotes() {
  async getNoteById(@Param('id') noteId: string): Promise<Note> {
    const note = await this.notesService.findById(noteId);
    if (!note) {
-     throw new NotFoundException(`Note with ID ${noteId} not found`);
+     throw new NotFoundException('Note with ID ${noteId} not found');
    }
    return note;
  }
