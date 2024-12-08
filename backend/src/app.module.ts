@@ -16,6 +16,9 @@ import { AuthModule } from './auth/auth.module';
 import { BackupModule } from './backup/backup.module';
 import { ScheduleModule } from '@nestjs/schedule'; // Import ScheduleModule
 import { AnnouncementModule } from './announcement/announcement.module'; // Import AnnouncementModule
+import { RoomModule } from './room/room.module';
+import { ChatModule } from './chat/chat.module';
+import { MessageModule } from './message/message.module';
 
 @Module({
   imports: [
@@ -38,6 +41,9 @@ import { AnnouncementModule } from './announcement/announcement.module'; // Impo
     AuthModule,
     BackupModule, // Register BackupModule
     AnnouncementModule, // Register AnnouncementModule
+    RoomModule,
+    ChatModule,
+    MessageModule,
   ],
   controllers: [AppController],
   providers: [AppService],
