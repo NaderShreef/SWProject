@@ -1,18 +1,34 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Body, Param } from '@nestjs/common';
 import { InteractionsService } from './interactions.service';
-import { Interaction } from './interaction.schema';
+import { CreateInteractionDto } from './dto/create-interaction.dto';
+import { UpdateInteractionDto } from './dto/update-interaction.dto';
 
 @Controller('interactions')
 export class InteractionsController {
   constructor(private readonly interactionsService: InteractionsService) {}
 
   @Post()
-  async create(@Body() data: Partial<Interaction>) {
-    return this.interactionsService.create(data);
+  create(@Body() createInteractionDto: CreateInteractionDto) {
+    return this.interactionsService.create(createInteractionDto);
   }
 
   @Get()
-  async findAll() {
+  findAll() {
     return this.interactionsService.findAll();
+  }
+
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.interactionsService.findOne(id);
+  }
+
+  @Patch(':id')
+  update(@Param('id') id: string, @Body() updateInteractionDto: UpdateInteractionDto) {
+    return this.interactionsService.update(id, updateInteractionDto);
+  }
+
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.interactionsService.remove(id);
   }
 }
