@@ -13,6 +13,9 @@ const config_1 = require("@nestjs/config");
 const app_controller_1 = require("./app.controller");
 const app_service_1 = require("./app.service");
 
+const notes_module_1 = require("./notes/notes.module");
+
+
 const progress_Module_1 = require("./progress/progress.Module");
 
 const quiz_module_1 = require("./quizzes/quiz.module");
@@ -31,6 +34,7 @@ const announcement_module_1 = require("./announcement/announcement.module");
 const room_module_1 = require("./room/room.module");
 const chat_module_1 = require("./chat/chat.module");
 const message_module_1 = require("./message/message.module");
+
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -43,6 +47,9 @@ exports.AppModule = AppModule = __decorate([
             mongoose_1.MongooseModule.forRoot(process.env.MONGO_URI, {
                 dbName: process.env.DATABASE_NAME,
             }),
+
+            notes_module_1.NotesModule,
+
 
             progress_Module_1.ProgressModule,
 
@@ -62,6 +69,7 @@ exports.AppModule = AppModule = __decorate([
             room_module_1.RoomModule,
             chat_module_1.ChatModule,
             message_module_1.MessageModule,
+
 
         ],
         controllers: [app_controller_1.AppController],
