@@ -7,10 +7,13 @@ export class CreateQuizDto {
   quizId: string;
 
   @IsNotEmpty()
-  Module_id: Types.ObjectId;
+  moduleId: Types.ObjectId;
 
   @IsArray()
   @IsNotEmpty()
   questions: Array<{ question: string; options: string[]; answer: string }>;
-}
 
+  @IsString()
+  @IsNotEmpty()
+  questionType: 'MCQ' | 'True/False' | 'Both';
+}

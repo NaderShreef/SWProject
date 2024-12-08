@@ -1,19 +1,23 @@
+import { Module } from '@nestjs/common';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
+import { Document } from 'mongoose';
+@Schema()
+export class Progress extends Document {
+  @Prop({ required: true, unique: true })
+  progressId: string; // Unique identifier for progress tracking
 
-@Schema({ timestamps: true }) // Automatically manage createdAt and updatedAt
-export class Quiz extends Document {
-  @Prop({ type: String, required: true, unique: true })
-  quizId: string;
+  @Prop({ required: true })
+  userId: string; // Associated user ID
 
-  @Prop({ type: Types.ObjectId, ref: 'Module', required: true })
-  Module_id: Types.ObjectId;
+  @Prop({ required: true })
+  courseId: string; // Associated course ID
 
-  @Prop({ type: [{ question: String, options: [String], answer: String }], required: true })
-  questions: Array<{ question: string; options: string[]; answer: string }>;
+  @Prop({ required: true, min: 0, max: 100 })
+  completionPercentage: number; // Percentage of course completed (between 0 and 100)
 
-  @Prop({ type: Date, default: Date.now })
-  createdAt: Date;
+  @Prop({ required: true })
+  lastAccessed: Date; // Last time the course was accessed
 }
 
-export const QuizSchema = SchemaFactory.createForClass(Quiz);
+// Create the Mongoose schema
+export const ProgressSchema = SchemaFactory.createForClass(Progress);
