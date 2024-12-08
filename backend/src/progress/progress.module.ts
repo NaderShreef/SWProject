@@ -12,12 +12,5 @@ import { Progress, ProgressSchema } from './progress.schema';  // Import your sc
   providers: [ProgressService],
   controllers: [ProgressController],
 })
-@Module({
-  imports: [
-    MongooseModule.forFeature([{ name: 'progress', schema: ProgressSchema }]),
-  ],
-  controllers: [ProgressController],
-  providers: [ProgressService],
-})
 export class ProgressModule {}
 
