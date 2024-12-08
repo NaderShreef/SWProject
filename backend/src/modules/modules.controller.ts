@@ -8,15 +8,21 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { Multer } from 'multer';
 import { diskStorage } from 'multer';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { Roles } from '../auth/roles.decorator';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { RolesGuard } from 'src/Auth/roles.gaurd';
+import { UseGuards } from '@nestjs/common';
 
 @ApiTags('Modules')
 @Controller('modules')
 export class ModulesController {
   constructor(private readonly modulesService: ModulesService) {}
+  
+  @Roles('admin', 'instructor')  // Only allow admin and instructor to create modules
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @ApiOperation({ summary: 'Create a new module' })
   @ApiResponse({ status: 201, description: 'Module created successfully.' })
   @ApiResponse({ status: 400, description: 'Bad Request' })
-  
   @Post()
   async create(@Body() moduleData: CreateModuleDto): Promise<Module> {
     console.log('Received Data:', moduleData);
@@ -29,6 +35,9 @@ export class ModulesController {
   }
 
   @Get(':id/with-course')
+  @ApiOperation({ summary: 'Find module with associated course' })
+  @Roles('admin', 'instructor')  // Restrict to admin and instructor
+  @UseGuards(JwtAuthGuard, RolesGuard)
   async findModuleWithCourse(@Param('id') moduleId: string): Promise<Module> {
     const module = await this.modulesService.findModuleWithCourse(moduleId);
     if (!module) {
@@ -38,6 +47,9 @@ export class ModulesController {
   }
 
   @Get('course/:courseId')
+  @ApiOperation({ summary: 'Find modules by course ID' })
+  @Roles('admin', 'instructor')  // Only allow admin and instructor to access
+  @UseGuards(JwtAuthGuard, RolesGuard)
   async findModulesByCourse(@Param('courseId') courseId: string): Promise<{ data: Module[]; total: number; totalPages: number }> {
     const modules = await this.modulesService.findModulesByCourse(courseId); // Expecting an object with metadata
     if (!modules.data || modules.data.length === 0) {
@@ -58,6 +70,9 @@ export class ModulesController {
   }
 
   @Get(':id')
+  @ApiOperation({ summary: 'Find a module by its ID' })
+  @Roles('admin', 'instructor') 
+  @UseGuards(JwtAuthGuard, RolesGuard)
   async findById(@Param('id') moduleId: string): Promise<Module> {
     const module = await this.modulesService.findById(moduleId); // Use the service
     if (!module) {
@@ -67,6 +82,9 @@ export class ModulesController {
   }
 
   @Put(':id')
+  @ApiOperation({ summary: 'Update a module by its ID' })
+  @Roles('admin', 'instructor')  // Only admin and instructor can update a module
+  @UseGuards(JwtAuthGuard, RolesGuard)
   async update(
     @Param('id') moduleId: string,
     @Body() updates: UpdateModuleDto,
@@ -79,19 +97,27 @@ export class ModulesController {
   }
 
   @Delete(':id')
+  @ApiOperation({ summary: 'Delete a module by its ID' })
+  @Roles('admin')  // Only admin can delete a module
+  @UseGuards(JwtAuthGuard, RolesGuard)
   async delete(@Param('id') moduleId: string): Promise<{ message: string }> {
     return this.modulesService.delete(moduleId);
   }
 
+  @Put(':id/outdated')
   @ApiOperation({ summary: 'Mark a module as outdated' })
   @ApiResponse({ status: 200, description: 'Module marked as outdated successfully.' })
   @ApiResponse({ status: 404, description: 'Module not found.' })
-  @Put(':id/outdated')
+  @Roles('admin')  // Only admin can mark a module as outdated
+  @UseGuards(JwtAuthGuard, RolesGuard)
   async markAsOutdated(@Param('id') moduleId: string): Promise<Module> {
     return this.modulesService.markAsOutdated(moduleId);
   }
 
   @Put(':id/resources')
+  @ApiOperation({ summary: 'Update module resources' })
+  @Roles('admin', 'instructor')  // Only admin and instructor can update resources
+  @UseGuards(JwtAuthGuard, RolesGuard)
   async updateResources(
     @Param('id') moduleId: string,
     @Body() { resources }: { resources: string[] },
@@ -104,6 +130,9 @@ export class ModulesController {
   }
 
   @Delete(':id/resources')
+  @ApiOperation({ summary: 'Remove module resources' })
+  @Roles('admin', 'instructor')  // Only admin and instructor can remove resources
+  @UseGuards(JwtAuthGuard, RolesGuard)
   async removeResource(
     @Param('id') moduleId: string,
     @Body() { fileUrl }: { fileUrl: string },
@@ -116,6 +145,7 @@ export class ModulesController {
 }
 
   @Get('filter')
+  @ApiOperation({ summary: 'Find modules by criteria' })
   async findByCriteria(
     @Query('courseId') courseId?: string,
     @Query('title') title?: string,
@@ -123,7 +153,7 @@ export class ModulesController {
     return this.modulesService.findByCriteria({ courseId, title });
   }
 
- @Post(':id/upload')
+  @Post(':id/upload')
   @UseInterceptors(
     FileInterceptor('file', {
       storage: diskStorage({
@@ -142,6 +172,9 @@ export class ModulesController {
       },
     }),
   )
+  @ApiOperation({ summary: 'Upload a resource for a module' })
+  @Roles('admin', 'instructor')  // Only admin and instructor can upload resources
+  @UseGuards(JwtAuthGuard, RolesGuard)
   async uploadResource(
     @Param('id') moduleId: string,
     @UploadedFile() file: Multer.File,
@@ -156,6 +189,9 @@ export class ModulesController {
 
 
   @Get(':id/details')
+  @ApiOperation({ summary: 'Find module details' })
+  @Roles('admin', 'instructor')  // Only admin and instructor can view details
+  @UseGuards(JwtAuthGuard, RolesGuard)
   async findModuleWithDetails(@Param('id') moduleId: string): Promise<Module> {
     const module = await this.modulesService.findModuleWithDetails(moduleId);
     if (!module) {
