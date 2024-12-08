@@ -4,10 +4,11 @@ import { ResponsesService } from './responses.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { responses, ResponsesSchema } from './responses.Schema';
 
+
 @Module({
     imports :[ MongooseModule.forFeature([{name :responses.name, schema :ResponsesSchema}])], 
     controllers : [ResponsesController],
-    providers : [ResponsesService]
+    providers : [ResponsesService], 
 
 })
 export class ResponsesModule {

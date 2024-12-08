@@ -2,10 +2,14 @@ import { Controller } from '@nestjs/common';
 import {  Post, Get, Param, Body, Put, Delete } from '@nestjs/common';
 import { ResponsesService } from './responses.service';
 import { responses } from './responses.schema';
+import { Roles } from '../auth/roles.decorator';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { RolesGuard } from 'src/Auth/roles.gaurd';
 
 @Controller('responses')
 export class ResponsesController {
   constructor(private readonly responsesService: ResponsesService) {}
+
 
   @Post()
   async createResponse(@Body() responseData: Partial<responses>): Promise<responses> {
