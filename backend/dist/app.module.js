@@ -23,6 +23,9 @@ const recommendations_module_1 = require("./Data_science/recommendations.module"
 const courses_module_1 = require("./courses/courses.module");
 const auth_module_1 = require("./auth/auth.module");
 const question_bank_module_1 = require("./question-bank/question-bank.module");
+const message_module_1 = require("./message/message.module");
+const chat_module_1 = require("./chat/chat.module");
+const room_module_1 = require("./room/room.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -46,6 +49,9 @@ exports.AppModule = AppModule = __decorate([
             courses_module_1.CoursesModule,
             auth_module_1.AuthModule,
             question_bank_module_1.QuestionBankModule,
+            message_module_1.MessageModule,
+            chat_module_1.ChatModule,
+            room_module_1.RoomModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],
