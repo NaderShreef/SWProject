@@ -13,6 +13,7 @@ import { InteractionsModule } from './Data_science/interactions.module';
 import { RecommendationsModule } from './Data_science/recommendations.module';
 import { CoursesModule } from './courses/courses.module';
 import { AuthModule } from './auth/auth.module';
+import { QuestionBankModule } from './question-bank/question-bank.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { AuthModule } from './auth/auth.module';
     RecommendationsModule,
     CoursesModule,
     AuthModule,
+    QuestionBankModule,
   ],
   controllers: [AppController],
   providers: [AppService],

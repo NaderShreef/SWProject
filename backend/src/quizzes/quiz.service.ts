@@ -5,6 +5,8 @@ import { Quiz } from './schema/quiz.schema';
 import { QuestionBank } from '../question-bank/schema/question-bank.schema';
 import { CreateQuizDto } from './dto/create-quiz.dto';
 import { UpdateQuizDto } from './dto/update-quiz.dto';
+import { CreateQuestionBankDto } from '../question-bank/dto/create-question-bank.dto';
+
 
 @Injectable()
 export class QuizService {
@@ -13,6 +15,14 @@ export class QuizService {
     @InjectModel(QuestionBank.name)
     private readonly questionBankModel: Model<QuestionBank>,
   ) {}
+
+  // Create a question bank
+  async createQuestionBank(
+    questionBankDto: CreateQuestionBankDto,
+  ): Promise<QuestionBank> {
+    const newQuestionBank = new this.questionBankModel(questionBankDto);
+    return newQuestionBank.save();
+  }
 
   // Create a quiz with random questions
   async createQuiz(createQuizDto: CreateQuizDto): Promise<Quiz> {
@@ -52,12 +62,12 @@ export class QuizService {
 
   // Get all quizzes
   async findAllQuizzes(): Promise<Quiz[]> {
-    return this.quizModel.find().exec();
+    return this.quizModel.find().populate('moduleId').exec();
   }
 
   // Get a quiz by quizId
   async findQuizById(quizId: string): Promise<Quiz> {
-    const quiz = await this.quizModel.findOne({ quizId }).exec();
+    const quiz = await this.quizModel.findOne({ quizId }).populate('moduleId').exec();
     if (!quiz) {
       throw new NotFoundException(`Quiz with ID ${quizId} not found`);
     }
@@ -79,5 +89,37 @@ export class QuizService {
     }
     return updatedQuiz;
   }
+
+  // Evaluate quiz and provide feedback
+  async evaluateQuiz(
+    quizId: string,
+    answers: { answers: string[] },
+  ): Promise<any> {
+    const quiz = await this.quizModel.findOne({ quizId });
+    if (!quiz) {
+      throw new NotFoundException(`Quiz with ID ${quizId} not found`);
+    }
+
+    let correctAnswers = 0;
+    quiz.questions.forEach((question, index) => {
+      if (question.answer === answers.answers[index]) {
+        correctAnswers++;
+      }
+    });
+
+    const score = (correctAnswers / quiz.questions.length) * 100;
+    const feedback =
+      score >= 50
+        ? 'Good job! Keep it up.'
+        : 'You need to review the module content. Study it again and try the quiz.';
+
+    return {
+      score,
+      feedback,
+      correctAnswers,
+      totalQuestions: quiz.questions.length,
+    };
+  }
 }
+
 
