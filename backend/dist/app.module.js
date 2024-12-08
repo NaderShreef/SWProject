@@ -25,6 +25,9 @@ const auth_module_1 = require("./auth/auth.module");
 const backup_module_1 = require("./backup/backup.module");
 const schedule_1 = require("@nestjs/schedule");
 const announcement_module_1 = require("./announcement/announcement.module");
+const room_module_1 = require("./room/room.module");
+const chat_module_1 = require("./chat/chat.module");
+const message_module_1 = require("./message/message.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -50,6 +53,9 @@ exports.AppModule = AppModule = __decorate([
             auth_module_1.AuthModule,
             backup_module_1.BackupModule,
             announcement_module_1.AnnouncementModule,
+            room_module_1.RoomModule,
+            chat_module_1.ChatModule,
+            message_module_1.MessageModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

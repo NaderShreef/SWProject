@@ -9,7 +9,6 @@ import { RolesGuard } from 'src/Auth/roles.gaurd';
 
 
 @Controller('courses')
-@UseGuards(RolesGuard,JwtAuthGuard)
 export class CoursesController {
   constructor(private coursesService: CoursesService) {
 
@@ -25,6 +24,7 @@ export class CoursesController {
         const course = await this.coursesService.findById(id);
         return course;
     }
+    @UseGuards(RolesGuard,JwtAuthGuard)
    @Roles('instructor')
     @Post()
     async createCourse(@Body()courseData: CreateCourseDTo) {// Get the new student data from the request body
@@ -45,7 +45,7 @@ export class CoursesController {
         return this.coursesService.searchCourse(title, createdBy); // Adjusted service call
       }
 
-
+  @UseGuards(RolesGuard,JwtAuthGuard)
   @Roles('instructor')
   @Put(':id')
   async updateCourse(@Param('id') id:string,@Body()courseData: UpdateCourseDTO) {
@@ -67,7 +67,7 @@ export class CoursesController {
     }
     return { versions };
   }
-
+  @UseGuards(RolesGuard,JwtAuthGuard)
   @Roles('admin')
   @Delete(':id')
   async deleteCourse(@Param('id')id:string) {
