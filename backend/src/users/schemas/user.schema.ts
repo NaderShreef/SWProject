@@ -23,6 +23,15 @@ export class User extends Document {
 
   @Prop()
   createdAt: Date;
+
+  // Track failed login attempts
+  @Prop({ default: 0 })
+  failedLoginAttempts: number;
+
+  // Optional: Track the timestamp of the last failed login attempt
+  @Prop({ default: null })
+  lastFailedLoginAttempt: Date | null;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
+
