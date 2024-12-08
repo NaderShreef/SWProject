@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-import mongoose, {HydratedDocument} from 'mongoose';
+import { Schema as MongooseSchema } from 'mongoose'; 
 
 @Schema({ timestamps: true })
 export class Course  {
@@ -20,7 +20,7 @@ export class Course  {
   @Prop({ required: true, enum: ['Beginner', 'Intermediate', 'Advanced'] })
   difficultyLevel: string;
 
-  @Prop({ required: true })
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'users', required: true })
   createdBy: string;
 
   @Prop({ default: Date.now })
