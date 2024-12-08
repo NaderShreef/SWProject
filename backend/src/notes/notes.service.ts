@@ -59,5 +59,6 @@ async getAllNotes(): Promise<Note[]> {
     }
     return deletedNote as unknown as Note; // Explicitly cast to Note
   }
+  
 }
 
