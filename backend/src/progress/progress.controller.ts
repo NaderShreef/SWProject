@@ -1,8 +1,11 @@
+
 import { Controller, Get, Post, Param, Body, Delete, Put } from '@nestjs/common';
 import { ProgressService } from './progress.service';
 import { CreateProgressDto } from './createprogress.dto';
 import { UpdateProgressDto } from './updateprogress.dto';
 import { Progress } from './progress.schema';
+
+import { Controller } from '@nestjs/common';
 
 @Controller('progress')
 export class ProgressController {
