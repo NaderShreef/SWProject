@@ -3,6 +3,9 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 @Schema()
 export class Progress extends Document {
+  static save(): Progress | PromiseLike<Progress> {
+    throw new Error('Method not implemented.');
+  }
   @Prop({ required: true, unique: true })
   progressId: string; // Unique identifier for progress tracking
 
