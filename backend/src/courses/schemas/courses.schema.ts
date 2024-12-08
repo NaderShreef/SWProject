@@ -4,7 +4,7 @@ import { Document } from 'mongoose';
 import mongoose, {HydratedDocument} from 'mongoose';
 
 @Schema({ timestamps: true })
-export class Course extends Document {
+export class Course  {
   @Prop({ required: true, unique: true })
   courseId: string;
 
