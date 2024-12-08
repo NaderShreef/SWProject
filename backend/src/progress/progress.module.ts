@@ -14,10 +14,6 @@ import { Progress, ProgressSchema } from './progress.schema';  // Import your sc
 })
 export class ProgressModule {}
 
-import { ProgressService } from './progress.service';
-import { MongooseModule } from '@nestjs/mongoose';
-import { ProgressSchema } from './progress.schema';
-import { ProgressController } from './progress.controller';
 
 @Module({
   imports: [
@@ -26,5 +22,4 @@ import { ProgressController } from './progress.controller';
   controllers: [ProgressController],
   providers: [ProgressService],
 })
-export class ProgressModule {}
 
