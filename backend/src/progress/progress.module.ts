@@ -1,14 +1,16 @@
 import { Module } from '@nestjs/common';
-import { ProgressService } from './progress.service';
+
 import { MongooseModule } from '@nestjs/mongoose';
-import { ProgressSchema } from './progress.schema';
+import { ProgressService } from './progress.service';
 import { ProgressController } from './progress.controller';
+import { Progress, ProgressSchema } from './progress.schema';  // Import your schema
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: 'progress', schema: ProgressSchema }]),
+    MongooseModule.forFeature([{ name: Progress.name, schema: ProgressSchema }]), // Register Progress schema
   ],
-  controllers: [ProgressController],
   providers: [ProgressService],
+  controllers: [ProgressController],
 })
 export class ProgressModule {}
+
