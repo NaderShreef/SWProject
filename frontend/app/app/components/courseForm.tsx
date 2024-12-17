@@ -9,8 +9,8 @@ export default function CourseForm({edit, courseInfo}:{
   edit:boolean,
   courseInfo?:course
 }) {
-  const [name, setName] = useState(edit?courseInfo!.name:'');
-  const [id, setId] = useState(edit? courseInfo!.id: 0);
+  const [name, setName] = useState(edit?courseInfo!.title:'');
+  const [id, setId] = useState(edit? courseInfo!.courseId: 0);
   const [message, setMessage]=useState('')
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -1,9 +1,15 @@
 export interface course{
     _id:object,
-    id:string,
-    name:string,
+    courseId:string,
+    title:string,
+    description: string,
+    category: string,
+    difficultyLevel: string,
+    createdBy: string,
+    createdAt: Date
+
 }
-export interface student{
+export interface users{
     _id:object,
     id:string,
     name:string,
