@@ -13,4 +13,13 @@ export class CreateQuizDto {
   @IsInt()
   @Min(1)
   questionCount: number;
+
+  questions: [
+    {
+      type: 'MCQ' | 'True/False';
+      question: string;
+      options?: string[];
+      answer: string;
+    },
+  ];
 }

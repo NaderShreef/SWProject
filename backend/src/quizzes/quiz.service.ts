@@ -25,7 +25,7 @@ export class QuizService {
 
   // Create a quiz with random questions
   async createQuiz(createQuizDto: CreateQuizDto): Promise<Quiz> {
-    const { moduleId, questionType, questions } = createQuizDto;
+    const { moduleId, questionType } = createQuizDto;
 
     // Fetch the module's question bank
     const questionBank = await this.questionBankModel.findOne({
@@ -43,7 +43,7 @@ export class QuizService {
     );
 
     // Check if there are enough filtered questions to create the quiz
-    if (filteredQuestions.length < createQuizDto.questions.length) {
+    if (filteredQuestions.length < createQuizDto.questionCount) {
       throw new NotFoundException(
         'Not enough questions in the question bank to generate the quiz.',
       );
@@ -52,10 +52,11 @@ export class QuizService {
     // Randomly select the requested number of questions
     const selectedQuestions = filteredQuestions
       .sort(() => 0.5 - Math.random())
-      .slice(0, createQuizDto.questions.length);
+      .slice(0, createQuizDto.questionCount);
 
     const newQuiz = new this.quizModel({
-      ...createQuizDto,
+      moduleId: createQuizDto.moduleId,
+      questionType: createQuizDto.questionType,
       questions: selectedQuestions,
     });
 
