@@ -2,10 +2,18 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Quiz } from './schema/quiz.schema';
+<<<<<<< HEAD
 import { QuestionBank } from './schema/question-bank.schema';
 import { CreateQuizDto } from './dto/create-quiz.dto';
 import { UpdateQuizDto } from './dto/update-quiz.dto';
 import { CreateQuestionBankDto } from './dto/create-question-bank.dto';
+=======
+import { QuestionBank } from '../question-bank/schema/question-bank.schema';
+import { CreateQuizDto } from './dto/create-quiz.dto';
+import { UpdateQuizDto } from './dto/update-quiz.dto';
+import { CreateQuestionBankDto } from '../question-bank/dto/create-question-bank.dto';
+
+>>>>>>> d29a375d0a16a3ee5635b09c2ed28c726275cd98
 
 @Injectable()
 export class QuizService {
@@ -25,12 +33,19 @@ export class QuizService {
 
   // Create a quiz with random questions
   async createQuiz(createQuizDto: CreateQuizDto): Promise<Quiz> {
+<<<<<<< HEAD
     const { moduleId, questionType, questions } = createQuizDto;
 
     // Fetch the module's question bank
     const questionBank = await this.questionBankModel.findOne({
       moduleId: moduleId,
     });
+=======
+    const { moduleId, questionType, questionCount } = createQuizDto;
+
+    // Fetch the module's question bank
+    const questionBank = await this.questionBankModel.findOne({ moduleId });
+>>>>>>> d29a375d0a16a3ee5635b09c2ed28c726275cd98
     if (!questionBank) {
       throw new NotFoundException(
         `Question bank for module ${moduleId} not found`,
@@ -42,8 +57,12 @@ export class QuizService {
       (q) => questionType === 'Both' || q.type === questionType,
     );
 
+<<<<<<< HEAD
     // Check if there are enough filtered questions to create the quiz
     if (filteredQuestions.length < createQuizDto.questions.length) {
+=======
+    if (filteredQuestions.length < questionCount) {
+>>>>>>> d29a375d0a16a3ee5635b09c2ed28c726275cd98
       throw new NotFoundException(
         'Not enough questions in the question bank to generate the quiz.',
       );
@@ -52,7 +71,11 @@ export class QuizService {
     // Randomly select the requested number of questions
     const selectedQuestions = filteredQuestions
       .sort(() => 0.5 - Math.random())
+<<<<<<< HEAD
       .slice(0, createQuizDto.questions.length);
+=======
+      .slice(0, questionCount);
+>>>>>>> d29a375d0a16a3ee5635b09c2ed28c726275cd98
 
     const newQuiz = new this.quizModel({
       ...createQuizDto,
@@ -64,15 +87,23 @@ export class QuizService {
 
   // Get all quizzes
   async findAllQuizzes(): Promise<Quiz[]> {
+<<<<<<< HEAD
     return this.quizModel.find().populate('moduleId').exec(); // Populate the Module_id field if needed
+=======
+    return this.quizModel.find().populate('moduleId').exec();
+>>>>>>> d29a375d0a16a3ee5635b09c2ed28c726275cd98
   }
 
   // Get a quiz by quizId
   async findQuizById(quizId: string): Promise<Quiz> {
+<<<<<<< HEAD
     const quiz = await this.quizModel
       .findOne({ quizId })
       .populate('moduleId')
       .exec();
+=======
+    const quiz = await this.quizModel.findOne({ quizId }).populate('moduleId').exec();
+>>>>>>> d29a375d0a16a3ee5635b09c2ed28c726275cd98
     if (!quiz) {
       throw new NotFoundException(`Quiz with ID ${quizId} not found`);
     }
@@ -126,3 +157,8 @@ export class QuizService {
     };
   }
 }
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> d29a375d0a16a3ee5635b09c2ed28c726275cd98
