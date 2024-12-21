@@ -10,7 +10,7 @@ async function bootstrap() {
     console.log('Database Name:', appService.getDatabaseName());
     app.enableCors({
         origin: 'http://localhost:3001',
-        methods: ['GET', 'POST'],
+        methods: ['GET', 'POST', 'PUT', 'DELETE'],
     });
     await app.listen(3000);
     console.log('Application is running on http://localhost:3000');

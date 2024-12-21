@@ -9,7 +9,10 @@ export class UsersService {
 
   // Create a user
   async createUser(user: Partial<User>): Promise<User> {
-    const newUser = new this.userModel(user);
+    const newUser = new this.userModel({
+      ...user,
+      role: user.role || 'student',
+    });
     return newUser.save();
   }
 
@@ -19,8 +22,8 @@ export class UsersService {
   }
 
   // Get user by ID
-  async findById(userId: string): Promise<User | null> {
-    return this.userModel.findOne({ userId }).exec();
+  async findById(id: string): Promise<User | null> {
+    return this.userModel.findById(id).exec();
   }
 
   // Update user by ID
@@ -56,7 +59,7 @@ export class UsersService {
           $inc: { failedLoginAttempts: 1 }, // Increment failed login attempts by 1
           $set: { lastFailedLoginAttempt: new Date() }, // Set timestamp for the failed login attempt
         },
-        { new: true }
+        { new: true },
       )
       .exec();
   }
@@ -69,7 +72,7 @@ export class UsersService {
         {
           $set: { failedLoginAttempts: 0 }, // Reset failed login attempts to 0
         },
-        { new: true }
+        { new: true },
       )
       .exec();
   }
