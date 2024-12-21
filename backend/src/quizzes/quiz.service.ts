@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Quiz } from './schema/quiz.schema';
@@ -25,39 +29,41 @@ export class QuizService {
 
   // Create a quiz with random questions
   async createQuiz(createQuizDto: CreateQuizDto): Promise<Quiz> {
-    const { moduleId, questionType } = createQuizDto;
+    const { moduleId, questionType, questionCount, questions } = createQuizDto;
+
+    if (questions.length !== questionCount) {
+      throw new BadRequestException(
+        'The number of questions provided does not match the questionCount.',
+      );
+    }
 
     // Fetch the module's question bank
-    const questionBank = await this.questionBankModel.findOne({
-      moduleId: moduleId,
-    });
+    const questionBank = await this.questionBankModel.findOne({ moduleId });
     if (!questionBank) {
       throw new NotFoundException(
         `Question bank for module ${moduleId} not found`,
       );
     }
 
-    // Filter questions by type (MCQ, True/False, or Both)
-    let filteredQuestions = questionBank.questions.filter(
-      (q) => questionType === 'Both' || q.type === questionType,
-    );
-
-    // Check if there are enough filtered questions to create the quiz
-    if (filteredQuestions.length < createQuizDto.questionCount) {
-      throw new NotFoundException(
-        'Not enough questions in the question bank to generate the quiz.',
-      );
+    // Validate question types based on quiz type
+    for (const question of questions) {
+      if (questionType === 'MCQ' && question.type !== 'MCQ') {
+        throw new BadRequestException(
+          'All questions must be MCQ for an MCQ quiz.',
+        );
+      }
+      if (questionType === 'True/False' && question.type !== 'True/False') {
+        throw new BadRequestException(
+          'All questions must be True/False for a True/False quiz.',
+        );
+      }
     }
 
-    // Randomly select the requested number of questions
-    const selectedQuestions = filteredQuestions
-      .sort(() => 0.5 - Math.random())
-      .slice(0, createQuizDto.questionCount);
-
     const newQuiz = new this.quizModel({
-      moduleId: createQuizDto.moduleId,
-      questionType: createQuizDto.questionType,
-      questions: selectedQuestions,
+      moduleId,
+      questionType,
+      questionCount,
+      questions,
     });
 
     return newQuiz.save();
@@ -85,6 +91,29 @@ export class QuizService {
     quizId: string,
     updateQuizDto: UpdateQuizDto,
   ): Promise<Quiz> {
+    const { moduleId, questionType, questionCount, questions } = updateQuizDto;
+
+    if (questions && questions.length !== questionCount) {
+      throw new BadRequestException(
+        'The number of questions provided does not match the questionCount.',
+      );
+    }
+
+    if (questions) {
+      for (const question of questions) {
+        if (questionType === 'MCQ' && question.type !== 'MCQ') {
+          throw new BadRequestException(
+            'All questions must be MCQ for an MCQ quiz.',
+          );
+        }
+        if (questionType === 'True/False' && question.type !== 'True/False') {
+          throw new BadRequestException(
+            'All questions must be True/False for a True/False quiz.',
+          );
+        }
+      }
+    }
+
     const updatedQuiz = await this.quizModel.findOneAndUpdate(
       { quizId },
       updateQuizDto,
