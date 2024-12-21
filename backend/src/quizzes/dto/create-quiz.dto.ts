@@ -1,4 +1,14 @@
-import { IsNotEmpty, IsString, IsEnum, IsInt, Min } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsString,
+  IsEnum,
+  IsInt,
+  Min,
+  ArrayMinSize,
+  ArrayMaxSize,
+  ValidateNested,
+} from 'class-validator';
+import { Type } from 'class-transformer';
 import { Types } from 'mongoose';
 
 export class CreateQuizDto {
@@ -13,5 +23,27 @@ export class CreateQuizDto {
   @IsInt()
   @Min(1)
   questionCount: number;
+
+  @ValidateNested({ each: true })
+  @Type(() => QuestionDto)
+  @ArrayMinSize(1)
+  @ArrayMaxSize(100) // Example max size
+  questions: QuestionDto[];
 }
 
+class QuestionDto {
+  @IsNotEmpty()
+  @IsEnum(['MCQ', 'True/False'])
+  type: 'MCQ' | 'True/False';
+
+  @IsNotEmpty()
+  @IsString()
+  question: string;
+
+  @IsString({ each: true })
+  options?: string[];
+
+  @IsNotEmpty()
+  @IsString()
+  answer: string;
+}

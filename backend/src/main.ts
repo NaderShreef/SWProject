@@ -8,8 +8,8 @@ async function bootstrap() {
   console.log('Mongo URI:', appService.getMongoUri());
   console.log('Database Name:', appService.getDatabaseName());
   app.enableCors({
-    origin: 'http://localhost:3001',  // Ensure this is the correct frontend URL
-    methods: ['GET', 'POST'],
+    origin: 'http://localhost:3001', // Ensure this is the correct frontend URL
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
   });
 
   await app.listen(3000);
