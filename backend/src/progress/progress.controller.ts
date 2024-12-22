@@ -1,13 +1,17 @@
 
-import { Controller, Get, Post, Param, Body, Delete, Put } from '@nestjs/common';
+import { Controller, Get, Post, Param, Body, Delete, Put, UseGuards } from '@nestjs/common';
 import { ProgressService } from './progress.service';
 import { CreateProgressDto } from './createprogress.dto';
 import { UpdateProgressDto } from './updateprogress.dto';
 import { Progress } from './progress.schema';
+import { Roles } from '../auth/roles.decorator';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { RolesGuard } from '../Auth/roles.gaurd'; // Correct import path
 @Controller('progress')
 export class ProgressController {
   constructor(private readonly progressService: ProgressService) {}
-
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
   @Post()
   async create(@Body() createProgressDto: CreateProgressDto): Promise<Progress> {
     try {
@@ -17,7 +21,8 @@ export class ProgressController {
       throw error;  // Rethrow the error to let Nest handle it
     }
   }
-
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('student')
   @Get()
   findAll() {
     return this.progressService.findAll();
