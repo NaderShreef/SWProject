@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Body,
+  Param,
+  UseGuards,
+  Query,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User } from './schemas/user.schema';
 import { Roles } from '../auth/roles.decorator';
@@ -25,6 +35,14 @@ export class UsersController {
   @Get()
   async findAll() {
     return this.usersService.findAll();
+  }
+
+  // Get users by name
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin', 'instructor')
+  @Get('search')
+  async findByName(@Query('name') name: string) {
+    return this.usersService.findByName(name);
   }
 
   // Admin can view a user by their userId
@@ -62,4 +80,3 @@ export class UsersController {
     return this.usersService.getFailedLoginAttempts();
   }
 }
-

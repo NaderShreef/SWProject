@@ -50,6 +50,15 @@ export class UsersService {
     return this.userModel.findOne({ email }).exec();
   }
 
+  // Get users by name
+  async findByName(name: string): Promise<User[]> {
+    return this.userModel
+      .find({
+        $or: [{ email: { $regex: name, $options: 'i' } }],
+      })
+      .exec();
+  }
+
   // Track failed login attempts
   async incrementFailedLoginAttempts(userId: string): Promise<void> {
     await this.userModel

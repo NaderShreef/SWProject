@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import axios from "axios";
 
 interface User {
@@ -13,11 +14,16 @@ const AdminPanel = () => {
 
   useEffect(() => {
     const userRole = localStorage.getItem("userRole");
-    setIsAdmin(userRole === "admin");
+    setIsAdmin(userRole === "admin" || userRole === "instructor");
   }, []);
 
   const [users, setUsers] = useState<User[]>([]);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const router = useRouter();
+
+  const handleNavigateToStudentSearch = () => {
+    router.push("/student-search");
+  };
 
   const handleEditUser = (user: User) => {
     setSelectedUser(user);
@@ -90,6 +96,7 @@ const AdminPanel = () => {
     <div>
       <h2>Admin Panel</h2>
       <button onClick={fetchUsers}>Fetch Users</button>
+      <button onClick={handleNavigateToStudentSearch}>Search Students</button>
       <table>
         <thead>
           <tr>

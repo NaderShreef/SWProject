@@ -32,7 +32,9 @@ export default function HomePage() {
         </button>
         <AdminPanel />
         <CoursePanel />
-        <StudentCoursePanel />
+        {localStorage.getItem("userRole") === "student" && (
+          <StudentCoursePanel />
+        )}
       </div>
 
       {/* Footer */}

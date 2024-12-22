@@ -8,10 +8,17 @@ interface Course {
   createdBy: string;
 }
 
+import { useRouter } from "next/navigation";
+
 const StudentCoursePanel = () => {
   const [courses, setCourses] = useState<Course[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+
+  const handleNavigateToInstructorSearch = () => {
+    router.push("/instructor-search");
+  };
 
   useEffect(() => {
     const fetchEnrolledCourses = async () => {
@@ -46,29 +53,32 @@ const StudentCoursePanel = () => {
     return <p>Error: {error}</p>;
   }
 
-  if (courses.length === 0) {
-    return <p>You are not enrolled in any courses yet.</p>;
-  }
-
   return (
     <div>
       <h2>Your Enrolled Courses</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Title</th>
-            <th>Created By</th>
-          </tr>
-        </thead>
-        <tbody>
-          {courses.map((course) => (
-            <tr key={course._id}>
-              <td>{course.title}</td>
-              <td>{course.createdBy}</td>
+      <button onClick={handleNavigateToInstructorSearch}>
+        Search Instructors
+      </button>
+      {courses.length === 0 ? (
+        <p>You are not enrolled in any courses yet.</p>
+      ) : (
+        <table>
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Created By</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {courses.map((course) => (
+              <tr key={course._id}>
+                <td>{course.title}</td>
+                <td>{course.createdBy}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 };
