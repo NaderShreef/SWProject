@@ -1,12 +1,15 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Quiz } from './schema/quiz.schema';
-import { QuestionBank } from '../question-bank/schema/question-bank.schema';
+import { QuestionBank } from './schema/question-bank.schema';
 import { CreateQuizDto } from './dto/create-quiz.dto';
 import { UpdateQuizDto } from './dto/update-quiz.dto';
-import { CreateQuestionBankDto } from '../question-bank/dto/create-question-bank.dto';
-
+import { CreateQuestionBankDto } from './dto/create-question-bank.dto';
 
 @Injectable()
 export class QuizService {
@@ -26,7 +29,13 @@ export class QuizService {
 
   // Create a quiz with random questions
   async createQuiz(createQuizDto: CreateQuizDto): Promise<Quiz> {
-    const { moduleId, questionType, questionCount } = createQuizDto;
+    const { moduleId, questionType, questionCount, questions } = createQuizDto;
+
+    if (questions.length !== questionCount) {
+      throw new BadRequestException(
+        'The number of questions provided does not match the questionCount.',
+      );
+    }
 
     // Fetch the module's question bank
     const questionBank = await this.questionBankModel.findOne({ moduleId });
@@ -36,25 +45,25 @@ export class QuizService {
       );
     }
 
-    // Filter questions by type (MCQ, True/False, or Both)
-    let filteredQuestions = questionBank.questions.filter(
-      (q) => questionType === 'Both' || q.type === questionType,
-    );
-
-    if (filteredQuestions.length < questionCount) {
-      throw new NotFoundException(
-        'Not enough questions in the question bank to generate the quiz.',
-      );
+    // Validate question types based on quiz type
+    for (const question of questions) {
+      if (questionType === 'MCQ' && question.type !== 'MCQ') {
+        throw new BadRequestException(
+          'All questions must be MCQ for an MCQ quiz.',
+        );
+      }
+      if (questionType === 'True/False' && question.type !== 'True/False') {
+        throw new BadRequestException(
+          'All questions must be True/False for a True/False quiz.',
+        );
+      }
     }
 
-    // Randomly select the requested number of questions
-    const selectedQuestions = filteredQuestions
-      .sort(() => 0.5 - Math.random())
-      .slice(0, questionCount);
-
     const newQuiz = new this.quizModel({
-      ...createQuizDto,
-      questions: selectedQuestions,
+      moduleId,
+      questionType,
+      questionCount,
+      questions,
     });
 
     return newQuiz.save();
@@ -62,12 +71,15 @@ export class QuizService {
 
   // Get all quizzes
   async findAllQuizzes(): Promise<Quiz[]> {
-    return this.quizModel.find().populate('moduleId').exec();
+    return this.quizModel.find().populate('moduleId').exec(); // Populate the Module_id field if needed
   }
 
   // Get a quiz by quizId
   async findQuizById(quizId: string): Promise<Quiz> {
-    const quiz = await this.quizModel.findOne({ quizId }).populate('moduleId').exec();
+    const quiz = await this.quizModel
+      .findOne({ quizId })
+      .populate('moduleId')
+      .exec();
     if (!quiz) {
       throw new NotFoundException(`Quiz with ID ${quizId} not found`);
     }
@@ -79,6 +91,29 @@ export class QuizService {
     quizId: string,
     updateQuizDto: UpdateQuizDto,
   ): Promise<Quiz> {
+    const { moduleId, questionType, questionCount, questions } = updateQuizDto;
+
+    if (questions && questions.length !== questionCount) {
+      throw new BadRequestException(
+        'The number of questions provided does not match the questionCount.',
+      );
+    }
+
+    if (questions) {
+      for (const question of questions) {
+        if (questionType === 'MCQ' && question.type !== 'MCQ') {
+          throw new BadRequestException(
+            'All questions must be MCQ for an MCQ quiz.',
+          );
+        }
+        if (questionType === 'True/False' && question.type !== 'True/False') {
+          throw new BadRequestException(
+            'All questions must be True/False for a True/False quiz.',
+          );
+        }
+      }
+    }
+
     const updatedQuiz = await this.quizModel.findOneAndUpdate(
       { quizId },
       updateQuizDto,
@@ -121,5 +156,3 @@ export class QuizService {
     };
   }
 }
-
-

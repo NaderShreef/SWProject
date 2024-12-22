@@ -12,9 +12,8 @@ import { User } from '../users/schemas/user.schema';
 import { Roles } from '../auth/roles.decorator';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { UsersService } from '../users/users.service'; // Import UsersService
-import { LoginDto } from './dto/login.dto';  
+import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
-
 
 @Controller('auth')
 export class AuthController {
@@ -38,7 +37,9 @@ export class AuthController {
 
     // Check if the user has failed login attempts
     if (user.failedLoginAttempts && user.failedLoginAttempts >= 3) {
-      throw new UnauthorizedException('Account locked due to too many failed login attempts');
+      throw new UnauthorizedException(
+        'Account locked due to too many failed login attempts',
+      );
     }
 
     // Validate the user's password (Assuming you have password validation in your auth service)
