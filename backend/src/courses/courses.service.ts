@@ -60,7 +60,6 @@ async searchCourse(title?: string, createdBy?: string): Promise<Course | []> {
       // Update a course and track versions in-memory
   async update(id: string, updateData: UpdateCourseDTO): Promise<Course> {
     const course = await this.courseModel.findById(id);
-  
     const updatedcourse = {
       title: course.title,
       description: course.description,
@@ -77,6 +76,8 @@ async searchCourse(title?: string, createdBy?: string): Promise<Course | []> {
     }
     this.courseVersions.get(id).push(updatedcourse); // Add the current version to the list
 
+    course.__v = course.__v + 1;
+    
     // Apply the update to the course
     Object.assign(course, updateData);
     return await course.save();

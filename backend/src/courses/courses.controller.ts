@@ -24,8 +24,8 @@ export class CoursesController {
         const course = await this.coursesService.findById(id);
         return course;
     }
-    @UseGuards(RolesGuard,JwtAuthGuard)
-   @Roles('instructor')
+  //   @UseGuards(RolesGuard,JwtAuthGuard)
+  //  @Roles('instructor')
     @Post()
     async createCourse(@Body()courseData: CreateCourseDTo) {// Get the new student data from the request body
         const newCourse = await this.coursesService.create(courseData);
@@ -45,8 +45,8 @@ export class CoursesController {
         return this.coursesService.searchCourse(title, createdBy); // Adjusted service call
       }
 
-  @UseGuards(RolesGuard,JwtAuthGuard)
-  @Roles('instructor')
+  // @UseGuards(RolesGuard,JwtAuthGuard)
+  // @Roles('instructor')
   @Put(':id')
   async updateCourse(@Param('id') id:string,@Body()courseData: UpdateCourseDTO) {
       const updatedCourse = await this.coursesService.update(id, courseData);
@@ -67,8 +67,8 @@ export class CoursesController {
     }
     return { versions };
   }
-  @UseGuards(RolesGuard,JwtAuthGuard)
-  @Roles('admin')
+  // @UseGuards(RolesGuard,JwtAuthGuard)
+  // @Roles('admin')
   @Delete(':id')
   async deleteCourse(@Param('id')id:string) {
       const deletedCourse = await this.coursesService.delete(id);

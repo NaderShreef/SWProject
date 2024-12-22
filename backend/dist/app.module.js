@@ -12,7 +12,6 @@ const mongoose_1 = require("@nestjs/mongoose");
 const config_1 = require("@nestjs/config");
 const app_controller_1 = require("./app.controller");
 const app_service_1 = require("./app.service");
-const progress_Module_1 = require("./progress/progress.Module");
 const quiz_module_1 = require("./quizzes/quiz.module");
 const responses_module_1 = require("./responses/responses.module");
 const user_module_1 = require("./users/user.module");
@@ -22,12 +21,10 @@ const interactions_module_1 = require("./Data_science/interactions.module");
 const recommendations_module_1 = require("./Data_science/recommendations.module");
 const courses_module_1 = require("./courses/courses.module");
 const auth_module_1 = require("./auth/auth.module");
-const backup_module_1 = require("./backup/backup.module");
-const schedule_1 = require("@nestjs/schedule");
-const announcement_module_1 = require("./announcement/announcement.module");
-const room_module_1 = require("./room/room.module");
-const chat_module_1 = require("./chat/chat.module");
+const question_bank_module_1 = require("./question-bank/question-bank.module");
 const message_module_1 = require("./message/message.module");
+const chat_module_1 = require("./chat/chat.module");
+const room_module_1 = require("./room/room.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -51,11 +48,10 @@ exports.AppModule = AppModule = __decorate([
             recommendations_module_1.RecommendationsModule,
             courses_module_1.CoursesModule,
             auth_module_1.AuthModule,
-            backup_module_1.BackupModule,
-            announcement_module_1.AnnouncementModule,
-            room_module_1.RoomModule,
-            chat_module_1.ChatModule,
+            question_bank_module_1.QuestionBankModule,
             message_module_1.MessageModule,
+            chat_module_1.ChatModule,
+            room_module_1.RoomModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

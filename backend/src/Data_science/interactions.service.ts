@@ -1,20 +1,35 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { Interaction } from './interaction.schema';
+import { CreateInteractionDto } from './dto/create-interaction.dto';
+import { UpdateInteractionDto } from './dto/update-interaction.dto';
 
 @Injectable()
 export class InteractionsService {
-  constructor(
-    @InjectModel(Interaction.name) private interactionModel: Model<Interaction>,
-  ) {}
+  private interactions = [];
 
-  async create(data: Partial<Interaction>): Promise<Interaction> {
-    const interaction = new this.interactionModel(data);
-    return interaction.save();
+  create(createInteractionDto: CreateInteractionDto) {
+    const newInteraction = { id: Date.now(), ...createInteractionDto };
+    this.interactions.push(newInteraction);
+    return newInteraction;
   }
 
-  async findAll(): Promise<Interaction[]> {
-    return this.interactionModel.find().exec();
+  findAll() {
+    return this.interactions;
+  }
+
+  findOne(id: string) {
+    return this.interactions.find((item) => item.id === Number(id));
+  }
+
+  update(id: string, updateInteractionDto: UpdateInteractionDto) {
+    const interaction = this.findOne(id);
+    if (interaction) {
+      Object.assign(interaction, updateInteractionDto);
+    }
+    return interaction;
+  }
+
+  remove(id: string) {
+    this.interactions = this.interactions.filter((item) => item.id !== Number(id));
+    return { deleted: true };
   }
 }
