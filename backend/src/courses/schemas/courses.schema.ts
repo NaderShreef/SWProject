@@ -1,10 +1,11 @@
+// Course Schema
 import { Module } from '@nestjs/common';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-import { Schema as MongooseSchema } from 'mongoose'; 
+import { Schema as MongooseSchema } from 'mongoose';
 
 @Schema({ timestamps: true })
-export class Course  {
+export class Course {
   @Prop({ required: true, unique: true })
   courseId: string;
 
@@ -22,6 +23,9 @@ export class Course  {
 
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'users', required: true })
   createdBy: string;
+
+  @Prop({ type: [{ type: MongooseSchema.Types.ObjectId, ref: 'users' }] })
+  enrolledUsers: string[]; // Array of user IDs
 
   @Prop({ default: Date.now })
   createdAt: Date;

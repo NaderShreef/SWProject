@@ -1,18 +1,20 @@
 import { Controller, Get, Post, Body, Param, Query,Put, Patch, Delete , UseGuards } from '@nestjs/common';
 import { CoursesService } from './courses.service';
 import { Course } from './schemas/courses.schema';
-import { CreateCourseDTo } from './dto/createCourse.dto';
+import { CreateCourseDto } from './dto/createCourse.dto';
 import { UpdateCourseDTO } from './dto/updateCousre.dto';
 import { Roles } from '../auth/roles.decorator';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { RolesGuard } from 'src/Auth/roles.gaurd';
+import { UsersService } from 'src/users/users.service';
 
 
 @Controller('courses')
 export class CoursesController {
-  constructor(private coursesService: CoursesService) {
-
-  }
+  constructor(
+    private readonly coursesService: CoursesService,
+    private readonly usersService: UsersService, // Inject the UsersService
+  ) {}
 
   @Get()
     // Get all course
@@ -26,11 +28,12 @@ export class CoursesController {
     }
   //   @UseGuards(RolesGuard,JwtAuthGuard)
   //  @Roles('instructor')
-    @Post()
-    async createCourse(@Body()courseData: CreateCourseDTo) {// Get the new student data from the request body
-        const newCourse = await this.coursesService.create(courseData);
-        return newCourse;
-    }
+  @Post()
+async createCourse(@Body() courseData: CreateCourseDto) {
+  const newCourse = await this.coursesService.create(courseData);
+  return newCourse;
+}
+
     
       @Get('search')
       async search(@Query('searchTerm') searchTerm: string) {
@@ -48,15 +51,23 @@ export class CoursesController {
   // @UseGuards(RolesGuard,JwtAuthGuard)
   // @Roles('instructor')
   @Put(':id')
-  async updateCourse(@Param('id') id:string,@Body()courseData: UpdateCourseDTO) {
-      const updatedCourse = await this.coursesService.update(id, courseData);
-      return updatedCourse;      
+  async updateCourse(@Param('id') id: string, @Body() courseData: UpdateCourseDTO) {
+      try {
+          const updatedCourse = await this.coursesService.update(id, courseData);
+          return updatedCourse;
+      } catch (error) {
+          console.error('Error in updateCourse controller:', error);
+          throw new Error('Failed to update course');
+      }
   }
 
-  @Post(':id/enroll')
-  async enrollInCourse(@Param('id') courseId: string, @Body('userId') userId: string): Promise<string> {
-
-    return this.coursesService.enroll(courseId, userId);
+  @Post(':courseId/enroll/:userId')
+  async enroll(
+    @Param('courseId') courseId: string,
+    @Param('userId') userId: string,
+  ) {
+    const result = await this.coursesService.enroll(courseId, userId);
+    return result;
   }
 
   @Get(':id/versions')

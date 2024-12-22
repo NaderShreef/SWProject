@@ -17,4 +17,3 @@ export class RegisterDto {
   @IsEnum(['student', 'instructor', 'admin'])
   role: 'student' | 'instructor' | 'admin';
 }
-

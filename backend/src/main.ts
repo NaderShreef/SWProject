@@ -7,12 +7,17 @@ async function bootstrap() {
   const appService = app.get(AppService);
   console.log('Mongo URI:', appService.getMongoUri());
   console.log('Database Name:', appService.getDatabaseName());
+  
+  // Enable CORS with proper configuration
   app.enableCors({
-    origin: 'http://localhost:3001',  // Ensure this is the correct frontend URL
-    methods: ['GET', 'POST'],
+    origin: 'http://localhost:3000',  
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    allowedHeaders: 'Content-Type, Accept, Authorization',
+    credentials: true
   });
 
-  await app.listen(3000);
-  console.log('Application is running on http://localhost:3000');
+  const port = 5001;
+  await app.listen(port);
+  console.log(`Application is running on http://localhost:${port}`);
 }
 bootstrap();

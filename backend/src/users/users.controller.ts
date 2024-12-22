@@ -6,11 +6,18 @@ import { RegisterDto } from './dto/register-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../Auth/roles.gaurd'; // Correct import path
+import { CoursesService } from 'src/courses/courses.service';
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
-
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly coursesService: CoursesService,
+  ) {}
+  @Get(':userId/courses')
+  async getUserCourses(@Param('userId') userId: string) {
+    return await this.coursesService.getUserCourses(userId);
+  }
   // Admin can create a new user
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')

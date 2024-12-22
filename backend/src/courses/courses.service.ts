@@ -1,23 +1,33 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { Course } from './schemas/courses.schema';
-
-
 import { UpdateCourseDTO } from './dto/updateCousre.dto';
+import { CreateCourseDto } from './dto/createCourse.dto';
+import { User } from 'src/users/schemas/user.schema';
 
 @Injectable()
 export class CoursesService {
   constructor(
-    @InjectModel(Course.name) private courseModel: mongoose.Model<Course>) {}
+    @InjectModel(Course.name) private readonly courseModel: Model<Course>,
+    @InjectModel(User.name) private readonly userModel: Model<User>,
+  ) {}
   private courseVersions = new Map<string, any[]>();
 
+
+  async getUserCourses(userId: string): Promise<Course[]> {
+    return await this.courseModel.find({ enrolledUsers: userId }).exec();
+  }
  
     // create a course
-    async create(courseData: Course): Promise<Course> {
-      const newCourse = new this.courseModel(courseData);  // Create a new student document
-      return await newCourse.save();  // Save it to the database
-  }
+    async create(courseData: CreateCourseDto): Promise<Course> {
+      const course = new this.courseModel({
+        ...courseData,
+        createdAt: new Date(), // Add any missing properties here
+      });
+      return course.save();
+    }
+    
    // Get all courses
    async findAll(): Promise<Course[]> {
     let courses= await this.courseModel.find();  // Fetch all students from the database
@@ -51,12 +61,36 @@ async searchCourse(title?: string, createdBy?: string): Promise<Course | []> {
     }).exec()
   }
   
-    async enroll(courseId: string, userId: string): Promise<string> {
-      const course = await this.courseModel.findById(courseId);
-
-      return `User ${userId} successfully enrolled in course "${course.title}"`;
-
+  async enroll(courseId: string, userId: string) {
+    // Find the course
+    const course = await this.courseModel.findById(courseId);
+    if (!course) {
+      throw new NotFoundException(`Course with ID ${courseId} not found`);
     }
+
+    // Find the user
+    const user = await this.userModel.findById(userId);
+    if (!user) {
+      throw new NotFoundException(`User with ID ${userId} not found`);
+    }
+
+    // Check if the user is already enrolled
+    if (course.enrolledUsers.includes(userId)) {
+      return { message: 'User is already enrolled in this course' };
+    }
+
+    // Push the user._id into course.enrolledUsers
+    course.enrolledUsers.push(userId);
+
+    // Push the course._id into user.enrolledCourses
+    user.enrolledCourses.push(courseId);
+
+    // Save the updates
+    await course.save();
+    await user.save();
+
+    return { message: 'User successfully enrolled in the course' };
+  }
       // Update a course and track versions in-memory
   async update(id: string, updateData: UpdateCourseDTO): Promise<Course> {
     const course = await this.courseModel.findById(id);

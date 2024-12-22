@@ -11,15 +11,13 @@ export class ProgressService {
     @InjectModel(Progress.name) private readonly progressModel: Model<Progress>,
   ) {}
 
-  async create(createProgressDto: CreateProgressDto): Promise<Progress> {
-    try {
-      const newProgress = new this.progressModel(createProgressDto);
+  async create(progressData: Partial<Progress>): Promise<Progress> {
+    
+      const newProgress = new this.progressModel(progressData);
       return await newProgress.save();
-    } catch (error) {
-      console.error('Error while creating progress:', error);
-      throw error;  // Rethrow the error so the controller can handle it
-    }
+    
   }
+
   async findAll(): Promise<Progress[]> {
     return await this.progressModel.find().exec();
   }
@@ -56,21 +54,16 @@ export class ProgressService {
     return activeUsersCount.length;
   }
 
-  async getPerformanceReport(): Promise<any> {
-    return {
-      averageCompletionRate: await this.getCompletionRate(),
-      activeUsers: await this.getActiveUsers(),
-    };
-  }
-
   async getCompletionRate(): Promise<number> {
     const totalProgress = await this.progressModel.find().exec();
+
     if (totalProgress.length === 0) return 0;
-    const totalCompletion = totalProgress.reduce(
-      (acc, curr) => acc + curr.completionPercentage,
-      0,
-    );
-    return totalCompletion / totalProgress.length;
+
+    const totalStudentsCompleted = totalProgress.filter(
+      (progress) => progress.completionPercentage === 100,
+    ).length;
+
+    return totalStudentsCompleted;
   }
 
   async getUserCompletionRate(userId: string): Promise<number> {
@@ -92,5 +85,38 @@ export class ProgressService {
     );
     return totalCompletion / courseProgress.length;
   }
-}
 
+  async getPerformanceCategories(userId: string): Promise<string> {
+    const userCompletionRate = await this.getUserCompletionRate(userId);
+    const averageCompletionRate = await this.getAverageCompletionRate();
+
+    if (userCompletionRate >= 90) return 'Excellent';
+    if (userCompletionRate >= averageCompletionRate) return 'Above Average';
+    if (userCompletionRate < averageCompletionRate && userCompletionRate >= 50) return 'Average';
+    return 'Below Average';
+  }
+
+  async getAverageCompletionRate(): Promise<number> {
+    const totalProgress = await this.progressModel.find().exec();
+    if (totalProgress.length === 0) return 0;
+    const totalCompletion = totalProgress.reduce(
+      (acc, curr) => acc + curr.completionPercentage,
+      0,
+    );
+    return totalCompletion / totalProgress.length;
+  }
+
+  async getDashboard(userId: string): Promise<any> {
+    const userCompletionRate = await this.getUserCompletionRate(userId);
+    const userPerformanceCategory = await this.getPerformanceCategories(userId);
+    const activeUsers = await this.getActiveUsers();
+    const totalStudentsCompleted = await this.getCompletionRate();
+
+    return {
+      userCompletionRate,
+      userPerformanceCategory,
+      activeUsers,
+      totalStudentsCompleted,
+    };
+  }
+}

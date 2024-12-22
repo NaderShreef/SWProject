@@ -6,37 +6,38 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
 import * as bcrypt from 'bcrypt';
+import { RegisterDto } from './dto/register.dto';
 import { User } from '../users/schemas/user.schema';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private usersService: UsersService,
+    private readonly usersService: UsersService,
     private jwtService: JwtService,
   ) {}
 
   async register(
-    userDto: Partial<User>,
+    registerDto: RegisterDto,
   ): Promise<{ user: Partial<User>; access_token: string }> {
-    const existingUser = await this.usersService.findByEmail(userDto.email);
+    const existingUser = await this.usersService.findByEmail(registerDto.email);
     if (existingUser) {
       throw new ConflictException('User already exists');
     }
 
     // Hash password
     const saltRounds = 10;
-    const passwordHash = await bcrypt.hash(userDto.passwordHash, saltRounds);
+    const passwordHash = await bcrypt.hash(registerDto.password, saltRounds);
 
     // Create user
     const user = await this.usersService.createUser({
-      ...userDto,
+      ...registerDto,
       passwordHash,
-      userId: userDto.email,
+      userId: registerDto.email,
     });
 
     // Generate JWT token
     const payload = {
-      sub: user.userId,
+      sub: user._id,
       email: user.email,
       role: user.role,
     };
@@ -62,14 +63,17 @@ export class AuthService {
     }
 
     // Validate password using the new method
-    const isPasswordValid = await this.validatePassword(password, user.passwordHash);
+    const isPasswordValid = await this.validatePassword(
+      password,
+      user.passwordHash,
+    );
     if (!isPasswordValid) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
     // Generate JWT token
     const payload = {
-      sub: user.userId,
+      sub: user._id,
       email: user.email,
       role: user.role,
     };
@@ -85,7 +89,10 @@ export class AuthService {
   }
 
   // validatePassword method is now public
-  public async validatePassword(password: string, storedPasswordHash: string): Promise<boolean> {
+  public async validatePassword(
+    password: string,
+    storedPasswordHash: string,
+  ): Promise<boolean> {
     // Compare provided password with the stored password hash
     return await bcrypt.compare(password, storedPasswordHash);
   }

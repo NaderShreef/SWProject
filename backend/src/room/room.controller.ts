@@ -8,15 +8,21 @@ export class RoomController {
 
   // Create a new room
   @Post()
-  async createRoom(
-    @Body() createRoomDto: { userId: string; name: string; description: string },
-  ) {
-    return this.roomService.createRoom(
+async createRoom(
+  @Body() createRoomDto: { userId: string; name: string; description: string },
+) {
+  console.log("Incoming Room Data:", createRoomDto);
+  try {
+    return await this.roomService.createRoom(
       createRoomDto.userId,
       createRoomDto.name,
       createRoomDto.description,
     );
+  } catch (error) {
+    console.error("Error in createRoom:", error.message);
+    throw error; // Ensure the error gets logged properly
   }
+}
 
   // Get all rooms
   @Get()
