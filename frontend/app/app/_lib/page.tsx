@@ -27,3 +27,12 @@ export interface responses {
     score: number;
     submitted_at: Date;
   }
+
+  export interface note{
+    noteId: string; 
+    userId: string;
+    courseId: string;
+    content: string;
+    createdAt: Date;
+    lastUpdated: Date;
+}
