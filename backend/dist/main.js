@@ -8,6 +8,10 @@ async function bootstrap() {
     const appService = app.get(app_service_1.AppService);
     console.log('Mongo URI:', appService.getMongoUri());
     console.log('Database Name:', appService.getDatabaseName());
+    app.enableCors({
+        origin: 'http://localhost:3001',
+        methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    });
     await app.listen(3000);
     console.log('Application is running on http://localhost:3000');
 }

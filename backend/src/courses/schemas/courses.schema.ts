@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-import { Schema as MongooseSchema } from 'mongoose'; 
+import { Schema as MongooseSchema } from 'mongoose';
 
 @Schema({ timestamps: true })
-export class Course  {
+export class Course {
   @Prop({ required: true, unique: true })
   courseId: string;
 
@@ -25,6 +25,11 @@ export class Course  {
 
   @Prop({ default: Date.now })
   createdAt: Date;
+
+  @Prop({ type: [String], default: [] })
+  keywords: string[];
 }
 
 export const CourseSchema = SchemaFactory.createForClass(Course);
+
+CourseSchema.index({ keywords: 1 });
