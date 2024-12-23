@@ -27,8 +27,18 @@ const Navbar: React.FC = () => {
         >
           About
         </a>
+
+        <a
+          href="#"
+          style={styles.link}
+          onClick={(e) => { e.preventDefault(); handleNavigation('/responses'); }} 
+        >
+          Responses
+        </a>
       </div>
     </nav>
+
+    
   );
 };
 

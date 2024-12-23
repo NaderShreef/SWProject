@@ -16,6 +16,7 @@ import { QuestionBankModule } from './question-bank/question-bank.module';
 import { MessageModule } from './message/message.module';
 import { ChatModule } from './chat/chat.module';
 import { RoomModule } from './room/room.module';
+import { ProgressModule } from './progress/progress.module';
 
 @Module({
   imports: [

@@ -17,3 +17,13 @@ export interface users{
     courses:course[]
 
 }
+
+export interface responses {
+    _id: any;
+    response_id: string;
+    userId: string;
+    quizId: string;
+    answers: { question_id: string; answer: string }[];
+    score: number;
+    submitted_at: Date;
+  }

@@ -25,6 +25,7 @@ const question_bank_module_1 = require("./question-bank/question-bank.module");
 const message_module_1 = require("./message/message.module");
 const chat_module_1 = require("./chat/chat.module");
 const room_module_1 = require("./room/room.module");
+const progress_module_1 = require("./progress/progress.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -37,11 +38,10 @@ exports.AppModule = AppModule = __decorate([
             mongoose_1.MongooseModule.forRoot(process.env.MONGO_URI, {
                 dbName: process.env.DATABASE_NAME,
             }),
-            schedule_1.ScheduleModule.forRoot(),
             quiz_module_1.QuizModule,
             responses_module_1.ResponsesModule,
             user_module_1.UsersModule,
-            progress_Module_1.ProgressModule,
+            progress_module_1.ProgressModule,
             notes_module_1.NotesModule,
             modules_module_1.ModulesModule,
             interactions_module_1.InteractionsModule,

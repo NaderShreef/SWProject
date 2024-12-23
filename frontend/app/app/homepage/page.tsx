@@ -7,6 +7,7 @@ import Navbar from "../components/navbar";
 import Footer from "../components/Footer";
 import AdminPanel from "../components/AdminPanel";
 import CoursePanel from "../components/CoursePanel";
+import ResponsePanel from "../components/responsesPanel";
 
 export default function HomePage() {
   const router = useRouter();
@@ -32,6 +33,16 @@ export default function HomePage() {
         </button>
         <AdminPanel />
         <CoursePanel />
+        {localStorage.getItem("userRole") === "student" && (
+          <StudentCoursePanel />
+        )}
+
+
+<button style={styles.button} onClick={handleNavigateToCourses}>
+          Responses
+        </button>
+        <AdminPanel />
+        <ResponsePanel />
         {localStorage.getItem("userRole") === "student" && (
           <StudentCoursePanel />
         )}
