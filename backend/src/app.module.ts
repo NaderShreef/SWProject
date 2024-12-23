@@ -6,7 +6,6 @@ import { AppService } from './app.service';
 import { QuizModule } from './quizzes/quiz.module';
 import { ResponsesModule } from './responses/responses.module';
 import { UsersModule } from './users/user.module';
-import { ProgressModule } from './progress/progress.module';
 import { NotesModule } from './notes/notes.module';
 import { ModulesModule } from './modules/modules.module';
 import { InteractionsModule } from './Data_science/interactions.module';
