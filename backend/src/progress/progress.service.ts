@@ -165,29 +165,33 @@ async getStudentPerformanceMetrics(courseId: string): Promise<{
 
   // **Student Dashboard: User Dashboard**
   async getStudentDashboard(userId: string): Promise<any> {
-    // Fetch all progress records for the user and populate course details
-    const userProgress = await this.progressModel.find({ userId }).populate('courseId').exec();
+    // Fetch all courses the user is enrolled in
+    const userCourses = await this.courseModel.find({ enrolledUsers: userId }).exec();
   
-    if (userProgress.length === 0) {
+    if (userCourses.length === 0) {
       throw new NotFoundException(`No enrolled courses found for user ID ${userId}`);
     }
   
-    // Map each progress record to extract course title, description, and completion percentage
-    const dashboardData = userProgress.map((progress) => {
-      if (!progress.courseId || typeof progress.courseId !== 'object') {
-        throw new Error(`Course details not populated for progress with ID: ${progress._id}`);
-      }
+    // Fetch progress records for the user
+    const userProgress = await this.progressModel.find({ userId }).exec();
   
-      const course = progress.courseId as Course;
+    // Map courses with progress data
+    const dashboardData = userCourses.map((course) => {
+      const progress = userProgress.find(
+        (record) => record.courseId.toString() === course._id.toString()
+      );
+  
       return {
         courseTitle: course.title,
         courseDescription: course.description,
-        completionPercentage: progress.completionPercentage,
+        completionPercentage: progress ? progress.completionPercentage : 0,
+        averageScore: progress ? progress.averageScore || 0 : 0,
       };
     });
   
     return dashboardData;
   }
+  
   async getUserCompletionPercentage(userId: string): Promise<number> {
     const userProgress = await this.progressModel.find({ userId }).exec();
 

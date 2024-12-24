@@ -19,6 +19,9 @@ export class Progress extends Document {
 
   @Prop({ required: true })
   lastAccessed: Date; // Last time the course was accessed
+
+  @Prop({ min: 0, max: 100 })
+  averageScore: number;
 }
 
 // Create the Mongoose schema

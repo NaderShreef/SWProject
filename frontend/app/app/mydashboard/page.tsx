@@ -30,7 +30,7 @@ const MyDashboard: React.FC = () => {
     const fetchDashboardData = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:5001/progress/student/dashboard/${storedUserId}`
+          `http://localhost:5001/progress/dashboard/student/${storedUserId}`
         );
         setCourses(response.data);
       } catch (err) {
