@@ -20,7 +20,7 @@ const Navbar: React.FC = () => {
           onClick={(e) => {
             e.preventDefault();
             handleNavigation('/home');
-          }} // Home Button
+          }}
         >
           Home
         </a>
@@ -30,7 +30,7 @@ const Navbar: React.FC = () => {
           onClick={(e) => {
             e.preventDefault();
             handleNavigation('/about');
-          }} // About Button
+          }}
         >
           About
         </a>
@@ -40,7 +40,7 @@ const Navbar: React.FC = () => {
           onClick={(e) => {
             e.preventDefault();
             handleNavigation('/courses');
-          }} // Courses Button
+          }}
         >
           Courses
         </a>
@@ -50,7 +50,7 @@ const Navbar: React.FC = () => {
           onClick={(e) => {
             e.preventDefault();
             handleNavigation('/dashboard');
-          }} // Dashboard Button
+          }}
         >
           Dashboard
         </a>
@@ -60,7 +60,7 @@ const Navbar: React.FC = () => {
           onClick={(e) => {
             e.preventDefault();
             handleNavigation('/room');
-          }} // Chat Button
+          }}
         >
           Chat
         </a>
@@ -70,15 +70,27 @@ const Navbar: React.FC = () => {
       <div style={styles.navButtons}>
         <button
           style={styles.button}
-          onClick={() => handleNavigation('/profile')} // Navigate to My Profile
+          onClick={() => handleNavigation('/myprofile')} // Navigate to My Profile
         >
           My Profile
         </button>
         <button
           style={styles.button}
-          onClick={() => handleNavigation('/my-courses')} // Navigate to My Courses
+          onClick={() => handleNavigation('/mycourses')} // Navigate to My Courses
         >
           My Courses
+        </button>
+        <button
+          style={styles.button}
+          onClick={() => handleNavigation('/mydashboard')} // Navigate to My Dashboard
+        >
+          My Dashboard
+        </button>
+        <button
+          style={styles.button}
+          onClick={() => handleNavigation('/notes')} // Navigate to Notes
+        >
+          Notes
         </button>
       </div>
     </nav>
@@ -104,6 +116,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   navButtons: {
     display: 'flex',
     gap: '10px',
+    marginRight: '20px', // Adjusts the buttons position to the left
   },
   link: {
     color: '#fff',

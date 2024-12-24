@@ -66,91 +66,109 @@
 import {
   Controller,
   Get,
-  Param,
   Post,
-  Query,
-  BadRequestException,
-  InternalServerErrorException,
+  Put,
+  Delete,
+  Param,
   Body,
+  Query,
+  NotFoundException,
+  InternalServerErrorException,
+  Res,
 } from '@nestjs/common';
 import { ProgressService } from './progress.service';
-import { isValidObjectId } from 'mongoose';
 import { Progress } from './progress.schema';
+import { Response } from 'express';
 
 @Controller('progress')
 export class ProgressController {
   constructor(private readonly progressService: ProgressService) {}
-
-  // Fetch all progress records
+  @Post()
+  async createProgress(@Body() progressData: Partial<Progress>): Promise<Progress> {
+    try {
+      return await this.progressService.create(progressData);
+    } catch (error) {
+      throw new InternalServerErrorException('Failed to create progress', error.message);
+    }
+  }
+  
   @Get()
-  async findAll() {
+  async getAllProgress(): Promise<Progress[]> {
     return await this.progressService.findAll();
   }
-  @Post()
-  async createProgress(@Body() progressData: Progress): Promise<Progress> {
-    return await this.progressService.create(progressData);
-  }
-
-  // Fetch a progress record by ID
+  
   @Get(':id')
-  async findById(@Param('id') id: string) {
-    if (!isValidObjectId(id)) {
-      throw new BadRequestException('Invalid progress ID');
-    }
+  async getProgressById(@Param('id') id: string): Promise<Progress> {
     return await this.progressService.findById(id);
   }
-
-  // Get the overall completion rate across all users
-  @Get('completion-rate')
-  async getCompletionRate() {
-    return await this.progressService.getCompletionRate();
+  
+  @Put(':id')
+  async updateProgress(
+    @Param('id') id: string,
+    @Body() updateData: Partial<Progress>,
+  ): Promise<Progress> {
+    return await this.progressService.update(id, updateData);
   }
-
-  // Get a specific user's completion rate
-  @Get('user/:userId/completion-rate')
-  async getUserCompletionRate(@Param('userId') userId: string) {
-    if (!isValidObjectId(userId)) {
-      throw new BadRequestException('Invalid userId');
-    }
-    return await this.progressService.getUserCompletionRate(userId);
+  
+  @Delete(':id')
+  async deleteProgress(@Param('id') id: string): Promise<void> {
+    return await this.progressService.delete(id);
   }
-
-  // Get a specific course's completion rate
-  @Get('course/:courseId/completion-rate')
-  async getCourseCompletionRate(@Param('courseId') courseId: string) {
-    if (!isValidObjectId(courseId)) {
-      throw new BadRequestException('Invalid courseId');
+  
+  // **Student Dashboard Endpoints**
+  
+  @Get('dashboard/student/:userId')
+  async getStudentDashboard(@Param('userId') userId: string): Promise<any> {
+    return await this.progressService.getStudentDashboard(userId);
+  }
+  
+  // **Instructor Analytics Endpoints**
+  
+  @Get('dashboard/instructor/:courseId')
+  async getInstructorDashboard(@Param('courseId') courseId: string): Promise<any> {
+    return await this.progressService.getInstructorDashboard(courseId);
+  }
+  
+  @Get('analytics/download/:courseId')
+  async downloadAnalytics(
+    @Param('courseId') courseId: string,
+    @Res() res: Response,
+  ): Promise<void> {
+    try {
+      const analytics = await this.progressService.getDownloadableAnalytics(courseId);
+      res.setHeader('Content-Disposition', `attachment; filename=course-${courseId}-analytics.json`);
+      res.setHeader('Content-Type', 'application/json');
+      res.send(analytics.downloadableFormat);
+    } catch (error) {
+      throw new InternalServerErrorException('Failed to download analytics', error.message);
     }
+  }
+  
+  // **Additional Instructor Metrics**
+  
+  @Get('engagement/course/:courseId')
+  async getCourseEngagementReport(@Param('courseId') courseId: string): Promise<any> {
+    return await this.progressService.getCourseEngagementReport(courseId);
+  }
+  
+  @Get('metrics/performance/:courseId')
+  async getStudentPerformanceMetrics(@Param('courseId') courseId: string): Promise<any> {
+    return await this.progressService.getStudentPerformanceMetrics(courseId);
+  }
+  
+  @Get('completion-rate/course/:courseId')
+  async getCourseCompletionRate(@Param('courseId') courseId: string): Promise<number> {
     return await this.progressService.getCourseCompletionRate(courseId);
   }
-
-  // Get the number of active users
-  @Get('active-users')
-  async getActiveUsers() {
-    return await this.progressService.getActiveUsers();
+  
+  @Get('completion-rate/student/:userId')
+  async getStudentCompletionRate(@Param('userId') userId: string): Promise<number> {
+    return await this.progressService.getUserCompletionRate(userId);
   }
-
-  // Get the performance category of a specific user
-  @Get('user/:userId/performance-category')
-  async getPerformanceCategory(@Param('userId') userId: string) {
-    if (!isValidObjectId(userId)) {
-      throw new BadRequestException('Invalid userId');
-    }
-    return await this.progressService.getPerformanceCategories(userId);
-  }
-
-  // Get the dashboard data for a specific user
-  @Get('dashboard')
-  async getDashboard(@Query('userId') userId: string) {
-    if (!isValidObjectId(userId)) {
-      throw new BadRequestException('Invalid userId');
-    }
-
-    try {
-      return await this.progressService.getDashboard(userId);
-    } catch (error) {
-      console.error('Error in getDashboard:', error);
-      throw new InternalServerErrorException('Could not retrieve dashboard data');
-    }
-  }
+  @Get('student/enrolled-courses/:userId')
+async getEnrolledCoursesAndProgress(
+  @Param('userId') userId: string,
+): Promise<any> {
+  return this.progressService.getEnrolledCoursesWithProgress(userId);
 }
+}  

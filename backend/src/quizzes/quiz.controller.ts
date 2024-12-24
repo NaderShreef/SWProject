@@ -1,50 +1,60 @@
-import { Controller, Post, Get, Patch, Body, Param, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Patch,
+  Delete,
+  Body,
+  Param,
+  NotFoundException,
+} from '@nestjs/common';
 import { QuizService } from './quiz.service';
 import { CreateQuizDto } from './dto/create-quiz.dto';
 import { UpdateQuizDto } from './dto/update-quiz.dto';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { RolesGuard } from '../auth/roles.gaurd';
-import { Roles } from '../auth/roles.decorator';
 
 @Controller('quizzes')
 export class QuizController {
   constructor(private readonly quizService: QuizService) {}
 
   @Post()
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('instructor') // Restrict to instructors
   async createQuiz(@Body() createQuizDto: CreateQuizDto) {
     return this.quizService.createQuiz(createQuizDto);
   }
 
-  @Get()
-  @UseGuards(JwtAuthGuard)
-  async findAllQuizzes() {
-    return this.quizService.findAllQuizzes();
-  }
-
-  @Get(':quizId')
-  @UseGuards(JwtAuthGuard)
-  async getQuiz(@Param('quizId') quizId: string) {
-    return this.quizService.findQuizById(quizId);
-  }
-
-  @Post(':quizId/evaluate')
-  async evaluateQuiz(
-    @Param('quizId') quizId: string,
-    @Body() answers: { answers: string[] },
-  ): Promise<any> {
-    return this.quizService.evaluateQuiz(quizId, answers);
-  }
-
-  @Patch(':quizId')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('instructor') // Restrict updates to instructors
-  async updateQuiz(
-    @Param('quizId') quizId: string,
-    @Body() updateQuizDto: UpdateQuizDto,
+  @Post('generate/:userId/:moduleId')
+  async generateQuiz(
+    @Param('userId') userId: string,
+    @Param('moduleId') moduleId: string,
+    @Body('questionCount') questionCount: number,
+    @Body('questionType') questionType: 'MCQ' | 'True/False' | 'Both',
   ) {
-    return this.quizService.updateQuiz(quizId, updateQuizDto);
+    return this.quizService.generateQuizBasedOnPerformance(
+      userId,
+      moduleId,
+      questionCount,
+      questionType,
+    );
   }
- 
+
+  @Patch('question/:moduleId/:questionId')
+  async updateQuestionInBank(
+    @Param('moduleId') moduleId: string,
+    @Param('questionId') questionId: string,
+    @Body() updatedQuestion: Partial<CreateQuizDto['questions'][0]>,
+  ) {
+    return this.quizService.updateQuestionInBank(moduleId, questionId, updatedQuestion);
+  }
+
+  @Delete('question/:moduleId/:questionId')
+  async deleteQuestionFromBank(
+    @Param('moduleId') moduleId: string,
+    @Param('questionId') questionId: string,
+  ) {
+    return this.quizService.deleteQuestionFromBank(moduleId, questionId);
+  }
+
+  @Delete(':quizId')
+  async deleteQuiz(@Param('quizId') quizId: string) {
+    return this.quizService.deleteQuiz(quizId);
+  }
 }

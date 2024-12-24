@@ -12,8 +12,8 @@ export class NotesController {
 
   // Create a new note
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('student')
+  // @UseGuards(JwtAuthGuard, RolesGuard)
+  // @Roles('student')
   @Post()
   async createNote(@Body() createNoteDTO: CreateNoteDTO) {
     return this.notesService.create(createNoteDTO);
@@ -28,8 +28,8 @@ async getQuickNotes(@Param('userId') userId: string) {
   return this.notesService.getNotesByType(userId, true); // Fetch quick notes
 }
 // Update an existing note
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('student')
+  // @UseGuards(JwtAuthGuard, RolesGuard)
+  // @Roles('student')
   @Put(':noteId')
   async updateNote(
     @Param('noteId') noteId: string,
@@ -39,8 +39,8 @@ async getQuickNotes(@Param('userId') userId: string) {
   }
 
   // Delete a note
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('student')
+  // @UseGuards(JwtAuthGuard, RolesGuard)
+  // @Roles('student')
   @Delete(':noteId')
   async deleteNote(@Param('noteId') noteId: string) {
     return this.notesService.delete(noteId);
@@ -63,4 +63,9 @@ async getAllNotes() {
   async deleteNoteById(@Param('noteId') noteId: string) {
     return this.notesService.deleteNoteById(noteId);
   }
+  @Get('user/:userId')
+  async getNotesByUserId(@Param('userId') userId: string) {
+      return this.notesService.getNotesByUserId(userId);
+  }
+  
 }

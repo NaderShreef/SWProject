@@ -18,12 +18,22 @@ export interface Course{
         averageScore?: number;
       }
       
-      export interface AnalyticsReport {
-        studentId: string;
-        studentName: string;
-        enrolledCourses: number;
-        completedCourses: number;
+      export interface PerformanceMetrics {
+        belowAverage: number;
+        average: number;
+        aboveAverage: number;
+        excellent: number;
+      }
+      
+      export interface EngagementReport {
+        enrolledStudents: number;
         completionRate: number;
+        performanceMetrics: PerformanceMetrics;
+      }
+      
+      export interface AnalyticsData {
+        courseId: string;
+        engagementReport: EngagementReport;
       }
       export interface Room {
         _id: string;
@@ -40,3 +50,20 @@ export interface Course{
         isOutdated: boolean;
       }
       
+      
+     
+      export interface Note {
+        noteId: string;
+        userId: string;
+        course?: {
+          id: string;
+          title: string;
+        };
+        module?: {
+          id: string;
+          title: string;
+        };
+        content: string;
+        createdAt: string;
+        lastUpdated: string;
+      }

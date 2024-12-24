@@ -50,7 +50,7 @@ export default function Login() {
         const payload = JSON.parse(jsonPayload);
         localStorage.setItem("userRole", payload.role);
 
-        router.push("/homepage");
+        router.push("/courses");
       }
     } catch (error) {
       setErrorMessage("Invalid credentials. Please try again.");

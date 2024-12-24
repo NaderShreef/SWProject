@@ -23,32 +23,28 @@ export class ModulesService {
   async createCourseModule(moduleData: CreateModuleDto): Promise<Module> {
     try {
       // Convert the courseId to ObjectId using the `new` keyword
-      const courseId = new Types.ObjectId(moduleData.courseId);  // Correct conversion to ObjectId
-
+      const courseId = new Types.ObjectId(moduleData.courseId); // Correct conversion to ObjectId
+  
       console.log('Creating module with data:', JSON.stringify(moduleData));
-      
+  
       // Ensure the course exists by querying the course model using ObjectId
       const course = await this.courseModel.findById(courseId).exec();
-
+  
       if (!course) {
         throw new Error(`Course with ID ${moduleData.courseId} not found`);
       }
-
-      // Generate the new moduleId by incrementing the last used value (or use default if no modules exist)
-      const lastModule = await this.moduleModel
-        .find({ courseId: course._id })
-        .sort({ moduleId: -1 })  // Sort by moduleId descending
-        .limit(1);
-
-      const newModuleId = lastModule.length > 0 ? (parseInt(lastModule[0].moduleId) + 1).toString() : '1';
-
+  
+      // Check if moduleId is provided
+      if (!moduleData.moduleId) {
+        throw new Error('moduleId is required');
+      }
+  
       // Create the new module
       const newModule = new this.moduleModel({
         ...moduleData,
-        moduleId: newModuleId,  // Set the generated moduleId
-        courseId: course._id,   // Use ObjectId for courseId
+        courseId: course._id, // Use ObjectId for courseId
       });
-
+  
       // Save and return the newly created module
       return await newModule.save();
     } catch (error) {
@@ -56,6 +52,7 @@ export class ModulesService {
       throw new Error(error.message); // Propagate the error to be caught in the controller
     }
   }
+  
   // Get a single course module by its ID
   async getCourseModule(moduleId: string): Promise<Module> {
     try {

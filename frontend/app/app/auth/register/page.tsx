@@ -31,7 +31,7 @@ export default function Register() {
       setSuccessMessage('Registration successful!');
       setErrorMessage('');
       setTimeout(() => {
-        router.push('/homepage'); // Redirect to /homepage after a short delay
+        router.push('/courses'); // Redirect to /homepage after a short delay
       }, 1000);
     } catch (error: any) {
       // Handle error response

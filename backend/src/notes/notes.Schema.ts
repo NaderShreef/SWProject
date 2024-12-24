@@ -3,6 +3,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { Schema as MongooseSchema } from 'mongoose'; // Import Schema for references
 
+
 @Schema()
 export class Note extends Document {
   @Prop({ required: true, unique: true })
@@ -13,6 +14,9 @@ export class Note extends Document {
 
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'courses', required: true })
   courseId: string; 
+
+  @Prop({ type:MongooseSchema.Types.ObjectId , ref: 'modules',  required:true})
+  moduleId:string;
 
   @Prop({ required: true })
   content: string; 

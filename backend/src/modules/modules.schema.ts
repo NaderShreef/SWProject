@@ -6,7 +6,7 @@ export type ModuleDocument = Module & Document;
 
 @Schema({ timestamps: true }) 
 export class Module {
-  @Prop({ required: true, unique: true })
+  @Prop({ required: true })
   moduleId: string; 
 
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Course', required: true })

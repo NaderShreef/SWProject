@@ -13,6 +13,12 @@ export class CreateNoteDTO {
   @IsOptional()
   courseId?: string;
 
+  @IsOptional()
+  @IsString()
+  moduleId?: string;
+
+  
+
   @IsString()
   @IsNotEmpty()
   content: string;

@@ -1,7 +1,7 @@
 // Course Schema
 import { Module } from '@nestjs/common';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 import { Schema as MongooseSchema } from 'mongoose';
 
 @Schema({ timestamps: true })
@@ -29,6 +29,8 @@ export class Course {
 
   @Prop({ default: Date.now })
   createdAt: Date;
+
+  readonly _id: Types.ObjectId;
 }
 
 export const CourseSchema = SchemaFactory.createForClass(Course);

@@ -1,20 +1,21 @@
-import { IsMongoId,IsString, IsArray, IsOptional, IsUrl } from 'class-validator';
+import { IsMongoId, IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateModuleDto {
+  @IsNotEmpty()
   @IsString()
-  moduleId: string;
+  moduleId: string; // User-provided module ID
 
-  @IsMongoId() // Ensure courseId is a valid MongoDB ObjectId
+  @IsNotEmpty()
+  @IsMongoId()
   courseId: string;
 
+  @IsNotEmpty()
   @IsString()
   title: string;
 
+  @IsNotEmpty()
   @IsString()
   content: string;
 
-  @IsArray()
-  @IsOptional()
-  @IsUrl({}, { each: true }) // Validate that each resource is a valid URL
   resources?: string[];
 }

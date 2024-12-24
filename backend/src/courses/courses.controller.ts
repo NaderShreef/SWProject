@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Query,Put, Patch, Delete , UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Query,Put, Patch, Delete , UseGuards, NotFoundException, BadRequestException } from '@nestjs/common';
 import { CoursesService } from './courses.service';
 import { Course } from './schemas/courses.schema';
 import { CreateCourseDto } from './dto/createCourse.dto';
@@ -7,6 +7,8 @@ import { Roles } from '../auth/roles.decorator';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { RolesGuard } from 'src/Auth/roles.gaurd';
 import { UsersService } from 'src/users/users.service';
+import { ModulesService } from 'src/modules/modules.service';
+
 
 
 @Controller('courses')
@@ -14,6 +16,7 @@ export class CoursesController {
   constructor(
     private readonly coursesService: CoursesService,
     private readonly usersService: UsersService, // Inject the UsersService
+    private readonly modulesService: ModulesService 
   ) {}
 
   @Get()
@@ -40,13 +43,29 @@ async createCourse(@Body() courseData: CreateCourseDto) {
         return await this.coursesService.search(searchTerm);
       }
 
-      @Get('searchcourse')
-      async searchCourses(
-        @Query('title') title?: string,
-        @Query('createdBy') createdBy?: string,
-      ): Promise<Course | []> { // Return a single Course or null if not found
-        return this.coursesService.searchCourse(title, createdBy); // Adjusted service call
+  //     @Get('searchcourse')
+  // async searchCourses(
+  //   @Query('title') title?: string,
+  //   @Query('createdBy') createdBy?: string,
+  // ): Promise<Course[]> {
+  //   const courses = await this.coursesService.searchCourse(title, createdBy);
+  //   return courses; // Return an empty array if no results
+  // }
+  @Get('searchcourse')
+  async searchCourseModules(@Query('title') title: string) {
+    try {
+      // Find the course by title
+      const course = await this.coursesService.searchCourseByTitle(title);
+      if (!course) {
+        throw new NotFoundException(`Course with title "${title}" not found.`);
       }
+  
+      // Fetch the modules using the course's `_id`
+      return await this.modulesService.getAllCourseModules(course._id.toString());
+    } catch (error) {
+      throw new BadRequestException(error.message || 'Failed to fetch course modules.');
+    }
+  }
 
   // @UseGuards(RolesGuard,JwtAuthGuard)
   // @Roles('instructor')

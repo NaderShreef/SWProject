@@ -1,12 +1,16 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Quiz } from './schema/quiz.schema';
-import { QuestionBank } from '../question-bank/schema/question-bank.schema';
-import { CreateQuizDto } from './dto/create-quiz.dto';
+import { QuestionBank } from './schema/question-bank.schema';
+import {  CreateQuizDto } from './dto/create-quiz.dto';
+import { CreateQuestionBankDto } from './dto/create-question-bank.dto';
 import { UpdateQuizDto } from './dto/update-quiz.dto';
-import { CreateQuestionBankDto } from '../question-bank/dto/create-question-bank.dto';
-
+import { Progress } from '../progress/progress.schema';
 
 @Injectable()
 export class QuizService {
@@ -14,6 +18,7 @@ export class QuizService {
     @InjectModel(Quiz.name) private readonly quizModel: Model<Quiz>,
     @InjectModel(QuestionBank.name)
     private readonly questionBankModel: Model<QuestionBank>,
+    @InjectModel(Progress.name) private readonly progressModel: Model<Progress>,
   ) {}
 
   // Create a question bank
@@ -24,102 +29,149 @@ export class QuizService {
     return newQuestionBank.save();
   }
 
-  // Create a quiz with random questions
+  // Update a question in the question bank
+  async updateQuestionInBank(
+    moduleId: string,
+    questionId: string,
+    updatedQuestion: Partial<QuestionBank['questions'][0]>,
+  ): Promise<QuestionBank> {
+    const questionBank = await this.questionBankModel.findOneAndUpdate(
+      { moduleId, 'questions._id': questionId },
+      { $set: { 'questions.$': updatedQuestion } },
+      { new: true },
+    );
+    if (!questionBank) {
+      throw new NotFoundException(`Question with ID ${questionId} not found.`);
+    }
+    return questionBank;
+  }
+
+  // Delete a question from the question bank
+  async deleteQuestionFromBank(
+    moduleId: string,
+    questionId: string,
+  ): Promise<QuestionBank> {
+    const questionBank = await this.questionBankModel.findOneAndUpdate(
+      { moduleId },
+      { $pull: { questions: { _id: questionId } } },
+      { new: true },
+    );
+    if (!questionBank) {
+      throw new NotFoundException(`Question with ID ${questionId} not found.`);
+    }
+    return questionBank;
+  }
+  async deleteQuiz(quizId: string): Promise<void> {
+    const quiz = await this.quizModel.findOne({ quizId });
+    if (!quiz) {
+      throw new NotFoundException(`Quiz with ID ${quizId} not found`);
+    }
+  
+    const studentQuizzesExist = await this.progressModel.exists({ quizId });
+    if (studentQuizzesExist) {
+      throw new BadRequestException('Cannot delete a quiz that has been initiated by students');
+    }
+  
+    await this.quizModel.deleteOne({ quizId });
+  }
+
+  // Create a quiz with instructor-defined criteria
   async createQuiz(createQuizDto: CreateQuizDto): Promise<Quiz> {
     const { moduleId, questionType, questionCount } = createQuizDto;
 
-    // Fetch the module's question bank
     const questionBank = await this.questionBankModel.findOne({ moduleId });
     if (!questionBank) {
-      throw new NotFoundException(
-        `Question bank for module ${moduleId} not found`,
-      );
+      throw new NotFoundException(`Question bank for module ${moduleId} not found.`);
     }
 
-    // Filter questions by type (MCQ, True/False, or Both)
-    let filteredQuestions = questionBank.questions.filter(
+    // Filter questions based on type
+    const filteredQuestions = questionBank.questions.filter(
       (q) => questionType === 'Both' || q.type === questionType,
     );
 
     if (filteredQuestions.length < questionCount) {
-      throw new NotFoundException(
-        'Not enough questions in the question bank to generate the quiz.',
+      throw new BadRequestException(
+        'Not enough questions in the question bank to create the quiz.',
       );
     }
 
-    // Randomly select the requested number of questions
-    const selectedQuestions = filteredQuestions
-      .sort(() => 0.5 - Math.random())
-      .slice(0, questionCount);
+    // Randomly select questions
+    const selectedQuestions = this.getRandomQuestions(filteredQuestions, questionCount);
 
     const newQuiz = new this.quizModel({
-      ...createQuizDto,
+      moduleId,
+      questionType,
+      questionCount,
       questions: selectedQuestions,
     });
 
     return newQuiz.save();
   }
 
-  // Get all quizzes
-  async findAllQuizzes(): Promise<Quiz[]> {
-    return this.quizModel.find().populate('moduleId').exec();
-  }
-
-  // Get a quiz by quizId
-  async findQuizById(quizId: string): Promise<Quiz> {
-    const quiz = await this.quizModel.findOne({ quizId }).populate('moduleId').exec();
-    if (!quiz) {
-      throw new NotFoundException(`Quiz with ID ${quizId} not found`);
-    }
-    return quiz;
-  }
-
-  // Update a quiz
-  async updateQuiz(
-    quizId: string,
-    updateQuizDto: UpdateQuizDto,
+  // Generate a quiz dynamically based on student performance
+  async generateQuizBasedOnPerformance(
+    userId: string,
+    moduleId: string,
+    questionCount: number,
+    questionType: 'MCQ' | 'True/False' | 'Both',
   ): Promise<Quiz> {
-    const updatedQuiz = await this.quizModel.findOneAndUpdate(
-      { quizId },
-      updateQuizDto,
-      { new: true },
+    const performanceMetrics = await this.getStudentPerformanceMetrics(userId, moduleId);
+
+    const targetDifficulty = this.getDifficultyForPerformance(performanceMetrics);
+
+    const questionBank = await this.questionBankModel.findOne({ moduleId });
+    if (!questionBank) {
+      throw new NotFoundException(`Question bank for module ${moduleId} not found.`);
+    }
+
+    const eligibleQuestions = questionBank.questions.filter(
+      (q) =>
+        (questionType === 'Both' || q.type === questionType) &&
+        q.difficulty === targetDifficulty,
     );
-    if (!updatedQuiz) {
-      throw new NotFoundException(`Quiz with ID ${quizId} not found`);
-    }
-    return updatedQuiz;
-  }
 
-  // Evaluate quiz and provide feedback
-  async evaluateQuiz(
-    quizId: string,
-    answers: { answers: string[] },
-  ): Promise<any> {
-    const quiz = await this.quizModel.findOne({ quizId });
-    if (!quiz) {
-      throw new NotFoundException(`Quiz with ID ${quizId} not found`);
+    if (eligibleQuestions.length < questionCount) {
+      throw new BadRequestException(
+        'Not enough questions available to generate the quiz.',
+      );
     }
 
-    let correctAnswers = 0;
-    quiz.questions.forEach((question, index) => {
-      if (question.answer === answers.answers[index]) {
-        correctAnswers++;
-      }
+    const selectedQuestions = this.getRandomQuestions(eligibleQuestions, questionCount);
+
+    const newQuiz = new this.quizModel({
+      moduleId,
+      questionType,
+      questionCount,
+      questions: selectedQuestions,
     });
 
-    const score = (correctAnswers / quiz.questions.length) * 100;
-    const feedback =
-      score >= 50
-        ? 'Good job! Keep it up.'
-        : 'You need to review the module content. Study it again and try the quiz.';
+    return newQuiz.save();
+  }
+
+  private getDifficultyForPerformance(performance: any): string {
+    if (performance.excellent > 0) return 'excellent';
+    if (performance.aboveAverage > 0) return 'aboveAverage';
+    if (performance.average > 0) return 'average';
+    return 'belowAverage';
+  }
+
+  private async getStudentPerformanceMetrics(userId: string, moduleId: string) {
+    const progress = await this.progressModel.findOne({ userId, moduleId });
+    if (!progress) {
+      throw new NotFoundException(`Progress for user ${userId} not found.`);
+    }
+
+    const completionPercentage = progress.completionPercentage;
 
     return {
-      score,
-      feedback,
-      correctAnswers,
-      totalQuestions: quiz.questions.length,
+      excellent: completionPercentage >= 90 ? 1 : 0,
+      aboveAverage: completionPercentage >= 75 ? 1 : 0,
+      average: completionPercentage >= 50 ? 1 : 0,
+      belowAverage: completionPercentage < 50 ? 1 : 0,
     };
   }
+
+  private getRandomQuestions(questions: any[], count: number): any[] {
+    return questions.sort(() => Math.random() - 0.5).slice(0, count);
+  }
 }
-
-

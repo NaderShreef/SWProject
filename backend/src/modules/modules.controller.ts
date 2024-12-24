@@ -18,14 +18,15 @@ export class ModulesController {
   constructor(private readonly modulesService: ModulesService) {}
 
   @Post()
-  async createCourseModule(@Body() moduleData: CreateModuleDto) {
-    try {
-      return await this.modulesService.createCourseModule(moduleData);
-    } catch (error) {
-      console.error('Error creating course module:', error);
-      throw new BadRequestException(error.message);
-    }
+async createCourseModule(@Body() moduleData: CreateModuleDto) {
+  try {
+    return await this.modulesService.createCourseModule(moduleData);
+  } catch (error) {
+    console.error('Error creating course module:', error);
+    throw new BadRequestException(error.message);
   }
+}
+
 
   @Get(':id')
   async getCourseModule(@Param('id') moduleId: string): Promise<Module> {

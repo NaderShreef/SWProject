@@ -9,7 +9,7 @@ export default function CoursesPage() {
   const router = useRouter();
   const [courses, setCourses] = useState<Course[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [userId, setUserId] = useState<string>('6750a8cbfd156ffd7d47486b'); // Example user ID, you can replace this dynamically
+  const [userId, setUserId] = useState<string>('6753292b95322bb375eeffcc'); // Example user ID, you can replace this dynamically
 
   // Fetch all courses
   const fetchCourses = async () => {
@@ -59,12 +59,11 @@ export default function CoursesPage() {
 
   const handleEnrollInCourse = async (courseId: string) => {
     try {
-      const response = await fetch(`http://localhost:5001/courses/${courseId}/enroll`, {
+      const response = await fetch(`http://localhost:5001/courses/${courseId}/enroll/${userId}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ userId }),
       });
 
       if (!response.ok) {
@@ -72,11 +71,15 @@ export default function CoursesPage() {
       }
 
       const data = await response.json();
-      alert(data); // Show success message (e.g., "User successfully enrolled")
+      alert(data.message || "You have been successfully enrolled"); // Show success message
     } catch (err) {
       console.error("Enroll failed:", err);
       alert("Failed to enroll in course.");
     }
+  };
+
+  const handleViewCourseAnalytics = (courseId: string) => {
+    router.push(`/courses/analytics/${courseId}`);
   };
 
   return (
@@ -172,6 +175,20 @@ export default function CoursesPage() {
                 >
                   Enroll
                 </button>
+                <button
+                  onClick={() => handleViewCourseAnalytics(course._id)}
+                  style={{
+                    fontSize: "14px",
+                    padding: "8px 16px",
+                    backgroundColor: "#F59E0B", // Yellow button for Analytics
+                    color: "#FFF",
+                    borderRadius: "6px",
+                    boxShadow: "0px 4px 6px rgba(0,0,0,0.1)",
+                  }}
+                  className="hover:bg-yellow-600"
+                >
+                  Analytics
+                </button>
               </div>
             </div>
           ))}
@@ -180,4 +197,3 @@ export default function CoursesPage() {
     </div>
   );
 }
-

@@ -44,15 +44,18 @@ async findById(id: string): Promise<Course> {
 //   return await this.courseModel.findByIdAndUpdate(id, updateData, { new: true });  // Find and update the student
 // }
 
-async searchCourse(title?: string, createdBy?: string): Promise<Course | []> {
-  const filter: any = {};
-  if (title) {
-    filter.title = { $regex: title, $options: 'i' }; // Case-insensitive search for the topic in the title
-  }
-  if (createdBy) {
-    filter.createdBy = { $regex: createdBy, $options: 'i' }; // Case-insensitive search for instructor name
-  }
-  return await this.courseModel.findOne(filter); // Use findOne to return a single course
+// async searchCourse(title?: string, createdBy?: string): Promise<Course[]> {
+//   const filter: any = {};
+//   if (title) {
+//     filter.title = { $regex: title, $options: 'i' }; // Case-insensitive regex
+//   }
+//   if (createdBy) {
+//     filter.createdBy = { $regex: createdBy, $options: 'i' }; // Case-insensitive regex
+//   }
+//   return await this.courseModel.find(filter).exec();
+// }
+async searchCourseByTitle(title: string): Promise<Course | null> {
+  return this.courseModel.findOne({ title: { $regex: title, $options: 'i' } }).exec();
 }
 
   async search(searchTerm: string) {

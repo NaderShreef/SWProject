@@ -59,5 +59,25 @@ async getAllNotes(): Promise<Note[]> {
     }
     return deletedNote as unknown as Note; // Explicitly cast to Note
   }
+  async getNotesByUserId(userId: string): Promise<any[]> {
+    // Fetch notes for the user
+    const notes = await this.noteModel.find({ userId }).exec();
+
+    if (!notes.length) {
+        throw new NotFoundException(`No notes found for user ID ${userId}`);
+    }
+
+    // Map the notes and format them
+    return notes.map((note) => ({
+        noteId: note.noteId,
+        userId: note.userId,
+        courseId: note.courseId || null,
+        moduleId: note.moduleId || null,
+        content: note.content,
+        createdAt: note.createdAt,
+        lastUpdated: note.lastUpdated,
+    }));
+}
+
 }
 

@@ -1,21 +1,19 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { CreateProgressDto } from './createprogress.dto';
-import { UpdateProgressDto } from './updateprogress.dto';
 import { Progress } from './progress.schema';
+import { Course } from 'src/courses/schemas/courses.schema';
 
 @Injectable()
 export class ProgressService {
   constructor(
     @InjectModel(Progress.name) private readonly progressModel: Model<Progress>,
+    @InjectModel(Course.name) private readonly courseModel: Model<Course>,
   ) {}
 
   async create(progressData: Partial<Progress>): Promise<Progress> {
-    
-      const newProgress = new this.progressModel(progressData);
-      return await newProgress.save();
-    
+    const newProgress = new this.progressModel(progressData);
+    return await newProgress.save();
   }
 
   async findAll(): Promise<Progress[]> {
@@ -30,10 +28,10 @@ export class ProgressService {
     return progress;
   }
 
-  async update(id: string, updateProgressDto: UpdateProgressDto): Promise<Progress> {
+  async update(id: string, updateData: Partial<Progress>): Promise<Progress> {
     const updatedProgress = await this.progressModel.findByIdAndUpdate(
       id,
-      updateProgressDto,
+      updateData,
       { new: true },
     );
     if (!updatedProgress) {
@@ -49,26 +47,12 @@ export class ProgressService {
     }
   }
 
-  async getActiveUsers(): Promise<number> {
-    const activeUsersCount = await this.progressModel.distinct('userId').exec();
-    return activeUsersCount.length;
-  }
-
-  async getCompletionRate(): Promise<number> {
-    const totalProgress = await this.progressModel.find().exec();
-
-    if (totalProgress.length === 0) return 0;
-
-    const totalStudentsCompleted = totalProgress.filter(
-      (progress) => progress.completionPercentage === 100,
-    ).length;
-
-    return totalStudentsCompleted;
-  }
-
+  // **Student Dashboard: Completion Rate**
   async getUserCompletionRate(userId: string): Promise<number> {
     const userProgress = await this.progressModel.find({ userId }).exec();
+
     if (userProgress.length === 0) return 0;
+
     const totalCompletion = userProgress.reduce(
       (acc, curr) => acc + curr.completionPercentage,
       0,
@@ -76,29 +60,22 @@ export class ProgressService {
     return totalCompletion / userProgress.length;
   }
 
-  async getCourseCompletionRate(courseId: string): Promise<number> {
-    const courseProgress = await this.progressModel.find({ courseId }).exec();
-    if (courseProgress.length === 0) return 0;
-    const totalCompletion = courseProgress.reduce(
-      (acc, curr) => acc + curr.completionPercentage,
-      0,
-    );
-    return totalCompletion / courseProgress.length;
-  }
-
-  async getPerformanceCategories(userId: string): Promise<string> {
+  // **Student Dashboard: Performance Metrics**
+  async getPerformanceCategory(userId: string): Promise<string> {
     const userCompletionRate = await this.getUserCompletionRate(userId);
     const averageCompletionRate = await this.getAverageCompletionRate();
 
     if (userCompletionRate >= 90) return 'Excellent';
     if (userCompletionRate >= averageCompletionRate) return 'Above Average';
-    if (userCompletionRate < averageCompletionRate && userCompletionRate >= 50) return 'Average';
+    if (userCompletionRate >= 50) return 'Average';
     return 'Below Average';
   }
 
   async getAverageCompletionRate(): Promise<number> {
     const totalProgress = await this.progressModel.find().exec();
+
     if (totalProgress.length === 0) return 0;
+
     const totalCompletion = totalProgress.reduce(
       (acc, curr) => acc + curr.completionPercentage,
       0,
@@ -106,17 +83,185 @@ export class ProgressService {
     return totalCompletion / totalProgress.length;
   }
 
-  async getDashboard(userId: string): Promise<any> {
-    const userCompletionRate = await this.getUserCompletionRate(userId);
-    const userPerformanceCategory = await this.getPerformanceCategories(userId);
-    const activeUsers = await this.getActiveUsers();
-    const totalStudentsCompleted = await this.getCompletionRate();
+  // **Instructor Analytics: Engagement**
+  async getEnrolledStudentCount(courseId: string): Promise<number> {
+    const course = await this.courseModel
+      .findById(courseId)
+      .select("enrolledUsers")
+      .exec(); // Select only enrolledUsers field
+    if (!course) {
+      throw new NotFoundException(`Course with ID ${courseId} not found`);
+    }
+    return course.enrolledUsers?.length || 0; // Safely return the count
+  }
+  
+
+  async getCourseCompletionRate(courseId: string): Promise<number> {
+    const courseProgress = await this.progressModel.find({ courseId }).exec();
+    if (courseProgress.length === 0) return 0;
+
+    const completedStudents = courseProgress.filter(
+        (progress) => progress.completionPercentage === 100,
+    ).length;
+
+    return completedStudents; // Return the count instead of percentage
+}
+
+
+async getStudentPerformanceMetrics(courseId: string): Promise<{
+  belowAverage: number;
+  average: number;
+  aboveAverage: number;
+  excellent: number;
+}> {
+  const courseProgress = await this.progressModel.find({ courseId }).exec();
+
+  const metrics = {
+    belowAverage: 0,
+    average: 0,
+    aboveAverage: 0,
+    excellent: 0,
+  };
+
+  const averageCompletionRate = await this.getAverageCompletionRate();
+
+  courseProgress.forEach((progress) => {
+    const { completionPercentage } = progress;
+    if (completionPercentage >= 90) {
+      metrics.excellent++;
+    } else if (completionPercentage >= averageCompletionRate) {
+      metrics.aboveAverage++;
+    } else if (completionPercentage >= 50) {
+      metrics.average++;
+    } else {
+      metrics.belowAverage++;
+    }
+  });
+
+  return metrics;
+}
+
+  // **Instructor Analytics: Content Effectiveness**
+  async getCourseEngagementReport(courseId: string): Promise<any> {
+    const enrolledStudents = await this.getEnrolledStudentCount(courseId);
+    const completionRate = await this.getCourseCompletionRate(courseId); // Now returns count of students with 100% completion
+    const performanceMetrics = await this.getStudentPerformanceMetrics(courseId);
 
     return {
-      userCompletionRate,
-      userPerformanceCategory,
-      activeUsers,
-      totalStudentsCompleted,
+        enrolledStudents,
+        completionRate, // Updated to reflect count instead of percentage
+        performanceMetrics,
+    };
+}
+  // **Downloadable Analytics**
+  async getDownloadableAnalytics(courseId: string): Promise<any> {
+    const engagementReport = await this.getCourseEngagementReport(courseId);
+
+    return {
+      report: engagementReport,
+      downloadableFormat: JSON.stringify(engagementReport), // Convert to JSON for download
     };
   }
+
+  // **Student Dashboard: User Dashboard**
+  async getStudentDashboard(userId: string): Promise<any> {
+    // Fetch all progress records for the user and populate course details
+    const userProgress = await this.progressModel.find({ userId }).populate('courseId').exec();
+  
+    if (userProgress.length === 0) {
+      throw new NotFoundException(`No enrolled courses found for user ID ${userId}`);
+    }
+  
+    // Map each progress record to extract course title, description, and completion percentage
+    const dashboardData = userProgress.map((progress) => {
+      if (!progress.courseId || typeof progress.courseId !== 'object') {
+        throw new Error(`Course details not populated for progress with ID: ${progress._id}`);
+      }
+  
+      const course = progress.courseId as Course;
+      return {
+        courseTitle: course.title,
+        courseDescription: course.description,
+        completionPercentage: progress.completionPercentage,
+      };
+    });
+  
+    return dashboardData;
+  }
+  async getUserCompletionPercentage(userId: string): Promise<number> {
+    const userProgress = await this.progressModel.find({ userId }).exec();
+
+    if (userProgress.length === 0) return 0; // No progress records, return 0
+
+    const totalCompletion = userProgress.reduce(
+      (acc, curr) => acc + curr.completionPercentage,
+      0,
+    );
+    return totalCompletion / userProgress.length;
+  }
+  // async getUserAverageScore(userId: string): Promise<number> {
+  //   const userProgress = await this.progressModel.find({ userId }).exec();
+
+  //   if (userProgress.length === 0) return 0; // No progress records, return 0
+
+  //   const totalScores = userProgress.reduce(
+  //     (acc, curr) => acc + (curr.averageScore || 0),
+  //     0,
+  //   );
+  //   return totalScores / userProgress.length;
+  // }
+
+  // **Instructor Analytics: General Dashboard**
+  async getInstructorDashboard(courseId: string): Promise<any> {
+    const engagementReport = await this.getCourseEngagementReport(courseId);
+
+    return {
+      courseId,
+      engagementReport,
+    };
+  }
+  // Add this function in ProgressService
+  async getEnrolledCoursesWithProgress(userId: string): Promise<any[]> {
+    const progressRecords = await this.progressModel
+      .find({ userId })
+      .populate('courseId') // Populate course details
+      .exec();
+
+    if (!progressRecords.length) {
+      throw new NotFoundException(`No enrolled courses found for user ID ${userId}`);
+    }
+  
+    // Map the progress records to include course details, performance metrics, and progress data
+    const enrolledCoursesWithMetrics = await Promise.all(
+      progressRecords.map(async (record) => {
+        // Ensure the course is populated and is an object
+        const course = record.courseId as any; // Explicit type assertion to any for populated field
+  
+        if (!course || typeof course !== 'object') {
+          throw new Error(`Course details are missing or invalid for courseId: ${record.courseId}`);
+        }
+  
+        // Ensure course has an _id field
+        const courseId = course._id ? course._id.toString() : null;
+        if (!courseId) {
+          throw new Error(`Course ID is missing in the populated course object.`);
+        }
+  
+        // Fetch performance metrics for the course
+        const performanceMetrics = await this.getStudentPerformanceMetrics(courseId);
+  
+        // Return the mapped object with course details and metrics
+        return {
+          course, // Populated course object
+          completionPercentage: record.completionPercentage,
+          lastAccessed: record.lastAccessed,
+          performanceMetrics,
+        };
+      })
+    );
+  
+    return enrolledCoursesWithMetrics;
+  }
+  
+
 }
