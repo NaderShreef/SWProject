@@ -12,50 +12,26 @@ export default function Login() {
   // Handle form submission
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-
+  
     try {
-      const response = await axios.post(
-        "http://localhost:5001/auth/login",
-        {
-          email,
-          password,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      // Check for successful response
-      console.log("Login response:", response.data);
-
-      // Store the access token and user role
-      if (response.data.access_token) {
+      const response = await axios.post('http://localhost:5001/auth/login', { email, password });
+  
+      if (response.data.access_token && response.data.user) {
         const token = response.data.access_token;
-        localStorage.setItem("authToken", token);
-
-        // Decode the JWT token to get the user's role
-        const base64Url = token.split(".")[1];
-        const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-        const jsonPayload = decodeURIComponent(
-          atob(base64)
-            .split("")
-            .map(function (c) {
-              return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
-            })
-            .join("")
-        );
-
-        const payload = JSON.parse(jsonPayload);
-        localStorage.setItem("userRole", payload.role);
-
-        router.push("/courses");
+        const user = response.data.user;
+  
+        localStorage.setItem('authToken', token);
+        localStorage.setItem('userId', user._id); // Save ObjectId
+        localStorage.setItem('userRole', user.role);
+  
+        router.push('/courses');
       }
     } catch (error) {
-      setErrorMessage("Invalid credentials. Please try again.");
+      console.error('Login error:', error);
+      setErrorMessage('Invalid credentials. Please try again.');
     }
   };
+  
 
   return (
     <div style={styles.page}>

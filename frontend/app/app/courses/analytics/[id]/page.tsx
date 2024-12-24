@@ -44,7 +44,7 @@ const AnalyticsPage: React.FC = () => {
     <div>
       <h1>Analytics for Course: {analyticsData.courseId}</h1>
       <p>Enrolled Students: {analyticsData.engagementReport.enrolledStudents}</p>
-      <p>Completion Rate: {analyticsData.engagementReport.completionRate}</p>
+      <p>Number of student who finished the course: {analyticsData.engagementReport.completionRate}</p>
       <h2>Performance Metrics</h2>
       <ul>
         <li>Below Average: {analyticsData.engagementReport.performanceMetrics.belowAverage}</li>

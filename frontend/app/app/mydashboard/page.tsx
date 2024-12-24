@@ -14,14 +14,23 @@ const MyDashboard: React.FC = () => {
   const [courses, setCourses] = useState<CourseProgress[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-
-  const userId = "6753292b95322bb375eeffcc"; // Static user ID (replace dynamically if needed)
+  const [userId, setUserId] = useState<string | null>(null); // Dynamically fetched user ID
 
   useEffect(() => {
+    // Fetch userId from localStorage
+    const storedUserId = localStorage.getItem("userId");
+    if (storedUserId) {
+      setUserId(storedUserId);
+    } else {
+      setError("User ID is not available. Please log in.");
+      setLoading(false);
+      return;
+    }
+
     const fetchDashboardData = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:5001/progress/student/dashboard/${userId}`
+          `http://localhost:5001/progress/student/dashboard/${storedUserId}`
         );
         setCourses(response.data);
       } catch (err) {
@@ -32,7 +41,7 @@ const MyDashboard: React.FC = () => {
     };
 
     fetchDashboardData();
-  }, [userId]);
+  }, []);
 
   if (loading) {
     return (
@@ -72,15 +81,20 @@ const MyDashboard: React.FC = () => {
                 <h2 className="text-xl font-semibold text-blue-600">
                   {course.courseTitle}
                 </h2>
-                <p className="text-gray-600 mb-4">{course.courseDescription}</p>
+                <p className="text-gray-600 mb-4">
+                  {course.courseDescription}
+                </p>
                 <p>
-                  <strong>Completion Percentage:</strong> {course.completionPercentage}%
+                  <strong>Completion Percentage:</strong>{" "}
+                  {course.completionPercentage}%
                 </p>
               </div>
             ))}
           </div>
         ) : (
-          <p className="text-gray-600">You are not enrolled in any courses yet.</p>
+          <p className="text-gray-600">
+            You are not enrolled in any courses yet.
+          </p>
         )}
       </div>
     </div>

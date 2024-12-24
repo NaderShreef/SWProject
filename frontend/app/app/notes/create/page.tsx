@@ -1,36 +1,46 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Navbar from '@/app/components/navbar'; // Import the Navbar
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Navbar from "@/app/components/navbar"; // Import the Navbar
 
 const CreateNotePage: React.FC = () => {
   const router = useRouter();
-  const [noteId, setNoteId] = useState<string>(''); // Field for noteId
-  const [content, setContent] = useState<string>('');
-  const [courseId, setCourseId] = useState<string>(''); // Field for courseId
-  const [moduleId, setModuleId] = useState<string>(''); // Field for moduleId
+  const [noteId, setNoteId] = useState<string>(""); // Field for noteId
+  const [content, setContent] = useState<string>("");
+  const [courseId, setCourseId] = useState<string>(""); // Field for courseId
+  const [moduleId, setModuleId] = useState<string>(""); // Field for moduleId
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const [userId, setUserId] = useState<string | null>(null); // Dynamically fetch user ID
 
-  const userId = '6753292b95322bb375eeffcc'; // Replace with the actual user ID
+  useEffect(() => {
+    // Fetch user ID from localStorage
+    const storedUserId = localStorage.getItem("userId");
+    if (storedUserId) {
+      setUserId(storedUserId);
+    } else {
+      setError("User ID is not available. Please log in.");
+    }
+  }, []);
 
   const handleCreateNote = async () => {
     try {
-      if (!noteId) throw new Error('Note ID is required.');
-      if (!courseId) throw new Error('Course ID is required.');
-      if (!moduleId) throw new Error('Module ID is required.');
-      if (!content) throw new Error('Note content cannot be empty.');
+      if (!noteId) throw new Error("Note ID is required.");
+      if (!courseId) throw new Error("Course ID is required.");
+      if (!moduleId) throw new Error("Module ID is required.");
+      if (!content) throw new Error("Note content cannot be empty.");
+      if (!userId) throw new Error("User ID is not available.");
 
       setLoading(true);
       const response = await fetch(`http://localhost:5001/notes`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           noteId, // Use the user-provided noteId
-          userId,
+          userId, // Dynamically fetched userId
           courseId,
           moduleId,
           content,
@@ -39,13 +49,14 @@ const CreateNotePage: React.FC = () => {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create the note.');
+        throw new Error("Failed to create the note.");
       }
 
       // Redirect to the notes page upon successful creation
-      router.push('/notes');
+      router.push("/notes");
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred.';
+      const errorMessage =
+        err instanceof Error ? err.message : "An unexpected error occurred.";
       setError(errorMessage);
     } finally {
       setLoading(false);
@@ -60,7 +71,9 @@ const CreateNotePage: React.FC = () => {
         {error && <p className="text-red-500 mb-4">{error}</p>}
 
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-2">Note ID</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Note ID
+          </label>
           <input
             type="text"
             value={noteId}
@@ -71,7 +84,9 @@ const CreateNotePage: React.FC = () => {
         </div>
 
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-2">Course ID</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Course ID
+          </label>
           <input
             type="text"
             value={courseId}
@@ -82,7 +97,9 @@ const CreateNotePage: React.FC = () => {
         </div>
 
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-2">Module ID</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Module ID
+          </label>
           <input
             type="text"
             value={moduleId}
@@ -93,7 +110,9 @@ const CreateNotePage: React.FC = () => {
         </div>
 
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-2">Note Content</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Note Content
+          </label>
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
@@ -108,7 +127,7 @@ const CreateNotePage: React.FC = () => {
           className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded"
           disabled={loading}
         >
-          {loading ? 'Creating...' : 'Create Note'}
+          {loading ? "Creating..." : "Create Note"}
         </button>
       </div>
     </div>

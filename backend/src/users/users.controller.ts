@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, Req, NotFoundException, ForbiddenException, InternalServerErrorException } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User } from './schemas/user.schema';
 import { Roles } from '../auth/roles.decorator';
@@ -7,6 +7,10 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../Auth/roles.gaurd'; // Correct import path
 import { CoursesService } from 'src/courses/courses.service';
+import { Request } from '@nestjs/common';
+// import { Request } from 'express';
+import { CustomRequest } from 'src/Auth/custom-request.interface';
+
 
 @Controller('users')
 export class UsersController {
@@ -38,10 +42,29 @@ export class UsersController {
   // @UseGuards(JwtAuthGuard, RolesGuard)
   // @Roles('admin')
   @Get(':userId')
-  async findById(@Param('userId') userId: string) {
-    console.log('Fetching user with ID:', userId); // Debug log
-    return this.usersService.findById(userId);
+async getUser(@Param('userId') userId: string) {
+  try {
+    console.log(`Fetching user with ID: ${userId}`);
+
+    // Check if `userId` is an ObjectId or an email
+    const isEmail = userId.includes("@");
+    const user = isEmail
+      ? await this.usersService.findByEmail(userId) // Query by email
+      : await this.usersService.findById(userId); // Query by ObjectId
+
+    if (!user) {
+      throw new NotFoundException(`User with ID ${userId} not found`);
+    }
+
+    return user;
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    throw new InternalServerErrorException('An unexpected error occurred.');
   }
+}
+
+  
+
   
 
   // Admin can update a user by their userId

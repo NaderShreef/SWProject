@@ -17,8 +17,19 @@ const Rooms = () => {
   const [description, setDescription] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
+  const [userId, setUserId] = useState<string | null>(null); // Dynamically fetch user ID
   const router = useRouter();
   const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
+
+  // Fetch userId from localStorage
+  useEffect(() => {
+    const storedUserId = localStorage.getItem("userId");
+    if (storedUserId) {
+      setUserId(storedUserId);
+    } else {
+      setError("User is not logged in.");
+    }
+  }, []);
 
   useEffect(() => {
     const fetchRooms = async () => {
@@ -41,7 +52,11 @@ const Rooms = () => {
   }, [BASE_URL]);
 
   const createRoom = async () => {
-    const userId = "6767259ac6fe8e06b1000a90"; // Replace with real user ID logic
+    if (!userId) {
+      setError("User ID is not available. Please log in.");
+      return;
+    }
+
     try {
       const response = await axios.post(`${BASE_URL}/rooms`, {
         userId,

@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import Navbar from '@/app/components/navbar'; // Adjust path as necessary
 import { useRouter } from 'next/navigation';
-import Navbar from '@/app/components/navbar'; // Import the Navbar
 
 interface User {
   userId: string;
@@ -15,70 +16,129 @@ interface User {
 }
 
 const MyProfilePage: React.FC = () => {
-  const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedUser, setEditedUser] = useState<User | null>(null);
 
-  // Replace with the logged-in user's ID (you can get this from auth context or session)
-  const userId = '6753292b95322bb375eeffcc';
+  const router = useRouter();
 
-  // Fetch user details
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await fetch(`http://localhost:5001/users/${userId}`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch user details.');
+        const userId = localStorage.getItem('userId');
+        const token = localStorage.getItem('authToken');
+
+        if (!userId || !token) {
+          setError('User is not authenticated.');
+          return;
         }
-        const data = await response.json();
-        setUser(data);
+
+        console.log('Fetching user details for ID:', userId);
+
+        const response = await axios.get(`http://localhost:5001/users/${userId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        setUser(response.data);
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'An error occurred.';
-        setError(errorMessage);
+        console.error('Error fetching user:', err);
+        setError('Failed to fetch user details.');
       }
     };
 
     fetchUser();
-  }, [userId]);
+  }, []);
 
-  // Handle deleting the profile
-  const handleDeleteProfile = async () => {
+  // Handle Delete User
+  const handleDeleteUser = async () => {
     const confirmed = confirm('Are you sure you want to delete your profile?');
     if (!confirmed) return;
 
     try {
-      const response = await fetch(`http://localhost:5001/users/${userId}`, {
-        method: 'DELETE',
-      });
+      const userId = localStorage.getItem('userId');
+      const token = localStorage.getItem('authToken');
 
-      if (!response.ok) {
-        throw new Error('Failed to delete profile.');
+      if (!userId || !token) {
+        setError('User is not authenticated.');
+        return;
       }
 
+      await axios.delete(`http://localhost:5001/users/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
       alert('Profile deleted successfully.');
-      router.push('/'); // Redirect to the home page after deletion
+      localStorage.clear(); // Clear user data from localStorage
+      router.push('/'); // Redirect to home page
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'An error occurred.';
-      setError(errorMessage);
+      console.error('Error deleting user:', err);
+      setError('Failed to delete user.');
     }
   };
 
-  // Handle editing the profile
-  const handleEditProfile = () => {
-    router.push('/myprofile/edit'); // Navigate to the edit profile page
+  // Handle Edit User
+  const handleEditUser = () => {
+    setIsEditing(true);
+    setEditedUser(user); // Set current user data for editing
+  };
+
+  const handleSaveUser = async () => {
+    try {
+      const userId = localStorage.getItem('userId');
+      const token = localStorage.getItem('authToken');
+
+      if (!editedUser || !userId || !token) {
+        setError('User is not authenticated.');
+        return;
+      }
+
+      await axios.put(
+        `http://localhost:5001/users/${userId}`,
+        {
+          name: editedUser.name,
+          email: editedUser.email,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      setUser(editedUser); // Update user state with edited data
+      setIsEditing(false); // Exit edit mode
+      alert('Profile updated successfully.');
+    } catch (err) {
+      console.error('Error updating user:', err);
+      setError('Failed to update user.');
+    }
   };
 
   if (error) {
-    return <p className="text-red-500">{error}</p>;
+    return (
+      <div>
+        <Navbar />
+        <p className="text-red-500">{error}</p>
+      </div>
+    );
   }
 
   if (!user) {
-    return <p className="text-gray-500">Loading profile...</p>;
+    return (
+      <div>
+        <Navbar />
+        <p className="text-gray-500">Loading profile...</p>
+      </div>
+    );
   }
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-100 text-black">
-      {/* Navbar */}
       <Navbar />
       <div className="flex flex-col items-center justify-center flex-grow p-6">
         <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
@@ -90,39 +150,79 @@ const MyProfilePage: React.FC = () => {
               className="w-32 h-32 rounded-full object-cover mx-auto mb-4"
             />
           )}
-          <p className="text-gray-700 mb-2">
-            <strong>User ID:</strong> {user.userId}
-          </p>
-          <p className="text-gray-700 mb-2">
-            <strong>Name:</strong> {user.name}
-          </p>
-          <p className="text-gray-700 mb-2">
-            <strong>Email:</strong> {user.email}
-          </p>
-          <p className="text-gray-700 mb-2">
-            <strong>Role:</strong> {user.role}
-          </p>
-          <p className="text-gray-700 mb-2">
-            <strong>Account Created At:</strong> {new Date(user.createdAt).toLocaleDateString()}
-          </p>
-          <p className="text-gray-700 mb-2">
-            <strong>Failed Login Attempts:</strong> {user.failedLoginAttempts}
-          </p>
-
-          <div className="mt-6 flex space-x-4">
-            <button
-              onClick={handleEditProfile}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-            >
-              Edit Profile
-            </button>
-            <button
-              onClick={handleDeleteProfile}
-              className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-            >
-              Delete Profile
-            </button>
-          </div>
+          {!isEditing ? (
+            <>
+              <p className="text-gray-700 mb-2">
+                <strong>Name:</strong> {user.name}
+              </p>
+              <p className="text-gray-700 mb-2">
+                <strong>Email:</strong> {user.email}
+              </p>
+              <p className="text-gray-700 mb-2">
+                <strong>Role:</strong> {user.role}
+              </p>
+              <p className="text-gray-700 mb-2">
+                <strong>Account Created At:</strong>{' '}
+                {new Date(user.createdAt).toLocaleDateString()}
+              </p>
+              <p className="text-gray-700 mb-2">
+                <strong>Failed Login Attempts:</strong> {user.failedLoginAttempts}
+              </p>
+              <div className="mt-6 flex space-x-4">
+                <button
+                  onClick={handleEditUser}
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                >
+                  Edit Profile
+                </button>
+                <button
+                  onClick={handleDeleteUser}
+                  className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+                >
+                  Delete Profile
+                </button>
+              </div>
+            </>
+          ) : (
+            <>
+              <label className="block text-gray-700 mb-2">
+                <strong>Name:</strong>
+                <input
+                  type="text"
+                  value={editedUser?.name || ''}
+                  onChange={(e) =>
+                    setEditedUser({ ...editedUser, name: e.target.value } as User)
+                  }
+                  className="w-full p-2 border rounded"
+                />
+              </label>
+              <label className="block text-gray-700 mb-2">
+                <strong>Email:</strong>
+                <input
+                  type="email"
+                  value={editedUser?.email || ''}
+                  onChange={(e) =>
+                    setEditedUser({ ...editedUser, email: e.target.value } as User)
+                  }
+                  className="w-full p-2 border rounded"
+                />
+              </label>
+              <div className="mt-6 flex space-x-4">
+                <button
+                  onClick={handleSaveUser}
+                  className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+                >
+                  Save Changes
+                </button>
+                <button
+                  onClick={() => setIsEditing(false)}
+                  className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
+                >
+                  Cancel
+                </button>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>
@@ -130,3 +230,4 @@ const MyProfilePage: React.FC = () => {
 };
 
 export default MyProfilePage;
+

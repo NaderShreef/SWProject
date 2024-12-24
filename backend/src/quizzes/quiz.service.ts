@@ -7,7 +7,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Quiz } from './schema/quiz.schema';
 import { QuestionBank } from './schema/question-bank.schema';
-import {  CreateQuizDto } from './dto/create-quiz.dto';
+import { CreateQuizDto } from './dto/create-quiz.dto';
 import { CreateQuestionBankDto } from './dto/create-question-bank.dto';
 import { UpdateQuizDto } from './dto/update-quiz.dto';
 import { Progress } from '../progress/progress.schema';
@@ -20,6 +20,22 @@ export class QuizService {
     private readonly questionBankModel: Model<QuestionBank>,
     @InjectModel(Progress.name) private readonly progressModel: Model<Progress>,
   ) {}
+
+  async getQuiz(quizId: string): Promise<Quiz> {
+    try {
+      const quiz = await this.quizModel.findOne({ _id: quizId }).exec();
+      if (!quiz) {
+        throw new NotFoundException(`Quiz with ID ${quizId} not found`);
+      }
+      return quiz;
+    } catch (error) {
+      throw new NotFoundException(`Quiz with ID ${quizId} not found`);
+    }
+  }
+
+  async getAllQuizzes(): Promise<Quiz[]> {
+    return this.quizModel.find().exec();
+  }
 
   // Create a question bank
   async createQuestionBank(
@@ -66,12 +82,14 @@ export class QuizService {
     if (!quiz) {
       throw new NotFoundException(`Quiz with ID ${quizId} not found`);
     }
-  
+
     const studentQuizzesExist = await this.progressModel.exists({ quizId });
     if (studentQuizzesExist) {
-      throw new BadRequestException('Cannot delete a quiz that has been initiated by students');
+      throw new BadRequestException(
+        'Cannot delete a quiz that has been initiated by students',
+      );
     }
-  
+
     await this.quizModel.deleteOne({ quizId });
   }
 
@@ -81,7 +99,9 @@ export class QuizService {
 
     const questionBank = await this.questionBankModel.findOne({ moduleId });
     if (!questionBank) {
-      throw new NotFoundException(`Question bank for module ${moduleId} not found.`);
+      throw new NotFoundException(
+        `Question bank for module ${moduleId} not found.`,
+      );
     }
 
     // Filter questions based on type
@@ -96,7 +116,10 @@ export class QuizService {
     }
 
     // Randomly select questions
-    const selectedQuestions = this.getRandomQuestions(filteredQuestions, questionCount);
+    const selectedQuestions = this.getRandomQuestions(
+      filteredQuestions,
+      questionCount,
+    );
 
     const newQuiz = new this.quizModel({
       moduleId,
@@ -115,13 +138,19 @@ export class QuizService {
     questionCount: number,
     questionType: 'MCQ' | 'True/False' | 'Both',
   ): Promise<Quiz> {
-    const performanceMetrics = await this.getStudentPerformanceMetrics(userId, moduleId);
+    const performanceMetrics = await this.getStudentPerformanceMetrics(
+      userId,
+      moduleId,
+    );
 
-    const targetDifficulty = this.getDifficultyForPerformance(performanceMetrics);
+    const targetDifficulty =
+      this.getDifficultyForPerformance(performanceMetrics);
 
     const questionBank = await this.questionBankModel.findOne({ moduleId });
     if (!questionBank) {
-      throw new NotFoundException(`Question bank for module ${moduleId} not found.`);
+      throw new NotFoundException(
+        `Question bank for module ${moduleId} not found.`,
+      );
     }
 
     const eligibleQuestions = questionBank.questions.filter(
@@ -136,7 +165,10 @@ export class QuizService {
       );
     }
 
-    const selectedQuestions = this.getRandomQuestions(eligibleQuestions, questionCount);
+    const selectedQuestions = this.getRandomQuestions(
+      eligibleQuestions,
+      questionCount,
+    );
 
     const newQuiz = new this.quizModel({
       moduleId,

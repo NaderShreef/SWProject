@@ -9,17 +9,35 @@ import Navbar from '@/app/components/navbar'; // Import the Navbar component (ad
 const MyCourses: React.FC = () => {
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string>('');
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
     const fetchCourses = async () => {
       try {
         setLoading(true);
-        const response = await axios.get('http://localhost:5001/users/6753292b95322bb375eeffcc/courses'); // Replace with dynamic user ID if needed
+
+        // Fetch user ID and auth token from localStorage
+        const userId = localStorage.getItem('userId');
+        const token = localStorage.getItem('authToken');
+
+        if (!userId || !token) {
+          setError('User is not authenticated.');
+          setLoading(false);
+          return;
+        }
+
+        // Fetch courses for the user
+        const response = await axios.get(`http://localhost:5001/users/${userId}/courses`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
         setCourses(response.data);
       } catch (err) {
-        setError('Failed to load courses');
+        console.error('Error fetching courses:', err);
+        setError('Failed to load courses.');
       } finally {
         setLoading(false);
       }
@@ -38,7 +56,7 @@ const MyCourses: React.FC = () => {
   }
 
   if (error) {
-    return <div>{error}</div>;
+    return <div className="text-red-500">{error}</div>;
   }
 
   return (
@@ -68,4 +86,3 @@ const MyCourses: React.FC = () => {
 };
 
 export default MyCourses;
-

@@ -1,18 +1,30 @@
-'use client';
+"use client";
 
-import React, { useEffect, useState } from 'react';
-import Navbar from '@/app/components/navbar'; // Adjust import path
-import axios from 'axios';
-import { Note } from '../_lib/page';
+import React, { useEffect, useState } from "react";
+import Navbar from "@/app/components/navbar"; // Adjust import path
+import axios from "axios";
+import { Note } from "../_lib/page";
 
 const NotesPage: React.FC = () => {
   const [notes, setNotes] = useState<Note[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-
-  const userId = '6753292b95322bb375eeffcc'; // Replace with dynamic user ID if needed
+  const [userId, setUserId] = useState<string | null>(null); // Dynamically fetch user ID
 
   useEffect(() => {
+    // Fetch user ID from localStorage
+    const storedUserId = localStorage.getItem("userId");
+    if (storedUserId) {
+      setUserId(storedUserId);
+    } else {
+      setError("User ID is not available. Please log in.");
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!userId) return;
+
     const fetchNotes = async () => {
       try {
         setLoading(true);
@@ -23,7 +35,7 @@ const NotesPage: React.FC = () => {
           setNotes([]); // No notes for this user
         }
       } catch (err) {
-        setError('Failed to load notes.');
+        setError("Failed to load notes.");
       } finally {
         setLoading(false);
       }
@@ -37,7 +49,7 @@ const NotesPage: React.FC = () => {
       await axios.delete(`http://localhost:5001/notes/${noteId}`);
       setNotes((prevNotes) => prevNotes.filter((note) => note.noteId !== noteId));
     } catch {
-      alert('Failed to delete the note.');
+      alert("Failed to delete the note.");
     }
   };
 
@@ -46,7 +58,7 @@ const NotesPage: React.FC = () => {
   };
 
   const handleCreateNote = () => {
-    window.location.href = '/notes/create'; // Adjust the create note route as needed
+    window.location.href = "/notes/create"; // Adjust the create note route as needed
   };
 
   if (loading) {

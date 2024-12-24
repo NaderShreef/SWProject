@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import Navbar from "../components/navbar";
 import { useRouter } from "next/navigation";
 import { Course } from "../_lib/page";
@@ -9,7 +9,17 @@ export default function CoursesPage() {
   const router = useRouter();
   const [courses, setCourses] = useState<Course[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [userId, setUserId] = useState<string>('6753292b95322bb375eeffcc'); // Example user ID, you can replace this dynamically
+  const [userId, setUserId] = useState<string | null>(null); // State for user ID
+
+  // Fetch user ID from localStorage on mount
+  useEffect(() => {
+    const storedUserId = localStorage.getItem("userId");
+    if (storedUserId) {
+      setUserId(storedUserId);
+    } else {
+      setError("User is not logged in.");
+    }
+  }, []);
 
   // Fetch all courses
   const fetchCourses = async () => {
@@ -58,6 +68,11 @@ export default function CoursesPage() {
   };
 
   const handleEnrollInCourse = async (courseId: string) => {
+    if (!userId) {
+      alert("User ID is not available.");
+      return;
+    }
+
     try {
       const response = await fetch(`http://localhost:5001/courses/${courseId}/enroll/${userId}`, {
         method: "POST",
@@ -152,7 +167,7 @@ export default function CoursesPage() {
                   style={{
                     fontSize: "14px",
                     padding: "8px 16px",
-                    backgroundColor: "#1D4ED8", // Navy blue button
+                    backgroundColor: "#1D4ED8",
                     color: "#FFF",
                     borderRadius: "6px",
                     boxShadow: "0px 4px 6px rgba(0,0,0,0.1)",
@@ -166,7 +181,7 @@ export default function CoursesPage() {
                   style={{
                     fontSize: "14px",
                     padding: "8px 16px",
-                    backgroundColor: "#10B981", // Green button for Enroll
+                    backgroundColor: "#10B981",
                     color: "#FFF",
                     borderRadius: "6px",
                     boxShadow: "0px 4px 6px rgba(0,0,0,0.1)",
@@ -180,7 +195,7 @@ export default function CoursesPage() {
                   style={{
                     fontSize: "14px",
                     padding: "8px 16px",
-                    backgroundColor: "#F59E0B", // Yellow button for Analytics
+                    backgroundColor: "#F59E0B",
                     color: "#FFF",
                     borderRadius: "6px",
                     boxShadow: "0px 4px 6px rgba(0,0,0,0.1)",

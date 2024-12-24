@@ -16,6 +16,16 @@ import { UpdateQuizDto } from './dto/update-quiz.dto';
 export class QuizController {
   constructor(private readonly quizService: QuizService) {}
 
+  @Get()
+  async getAllQuizzes() {
+    return this.quizService.getAllQuizzes();
+  }
+
+  @Get(':_id')
+  async getQuiz(@Param('_id') quizId: string) {
+    return this.quizService.getQuiz(quizId);
+  }
+
   @Post()
   async createQuiz(@Body() createQuizDto: CreateQuizDto) {
     return this.quizService.createQuiz(createQuizDto);
@@ -42,7 +52,11 @@ export class QuizController {
     @Param('questionId') questionId: string,
     @Body() updatedQuestion: Partial<CreateQuizDto['questions'][0]>,
   ) {
-    return this.quizService.updateQuestionInBank(moduleId, questionId, updatedQuestion);
+    return this.quizService.updateQuestionInBank(
+      moduleId,
+      questionId,
+      updatedQuestion,
+    );
   }
 
   @Delete('question/:moduleId/:questionId')

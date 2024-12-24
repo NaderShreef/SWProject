@@ -22,11 +22,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     if (!user) {
       throw new UnauthorizedException();
     }
-
-    // Remove sensitive information
-    const { passwordHash, ...userWithoutPassword } = user.toObject();
+  
+    // Return the user object to be attached to req.user
     return {
-      id: user._id,
+      id: user._id.toString(),
       email: user.email,
       role: user.role,
     };

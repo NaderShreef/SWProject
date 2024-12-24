@@ -64,6 +64,16 @@ const Navbar: React.FC = () => {
         >
           Chat
         </a>
+        <a
+          href="#"
+          style={styles.link}
+          onClick={(e) => {
+            e.preventDefault();
+            handleNavigation('/quizzes');
+          }}
+        >
+          Quizzes
+        </a>
       </div>
 
       {/* Right-side buttons */}
